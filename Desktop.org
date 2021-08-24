@@ -1,0 +1,1551 @@
+#+title: Linas' Emacs Desktop Configuration
+#+PROPERTY: header-args:emacs-lisp :tangle ./desktop.el
+
+* Desktop Enviroment
+** Desktop File
+
+This file is used by yout "login manager" (GDM, LightDM, etc) to display EXWM as a desktop enviroment option when you log in.
+
+*IMPORTANT*: Make sure you create a symbolic link for this file into =/usr/share/xsessions=:
+
+#+begin_src sh :tangle no
+
+  sudo ln -f ~/.emacs.d/exwm/EXWM.desktop /usr/share/xsessions/EXWM.desktop
+
+#+end_src
+
+#+begin_src shell :tangle ./exwm/EXWM.desktop :mkdirp yes
+
+[Desktop Entry]
+NAME=EXWM
+Comment=Emacs Window Manager
+Exec=sh ~/.emacs.d/exwm/start-exwm.sh
+TryExec=sh
+Type=Application
+DesktopNames=exwm
+
+#+end_src
+
+** Launcher Script
+
+#+begin_src sh :tangle ./exwm/start-exwm.sh :shebang #!/bin/sh
+
+  # Setting faster typing
+  xset r rate 200 75
+
+  # Converting caps lock to ctrl
+  setxkbmap -option "ctrl:nocaps"
+
+  # Startup picom
+  picom &
+
+  # 
+  (setxkbmap -query | grep -q "layout:\s\+us") && setxkbmap no || setxkbmap us
+
+  # Resotring previous wallpaper
+  # Not needed in the launcher script. Launching at exwm startup
+  # nitrogen --restore &
+
+  # Enable screen locking on suspend
+  xss-lock -- slock &
+
+  # Fire it up
+  # -mm - maximize window
+  # --debug-init - as init.el is loading if hit any errors drop into the debugger
+  exec dbus-launch --exit-with-session emacs -mm --debug-init -l ~/Projects/super-emacs-econfig/desktop.el
+
+#+end_src
+
+** Keyboard Configuration
+
+The =Xmodmap= file will be used with the =xmodmap= program to remap CapsLock to Ctrl inside of our desktop enviroment:
+
+*Although written, currently not used in this configuration. Using setxkbmap instead of xmodmap see Launcher Script*
+
+#+begin_src sh :tangle ./exwm/Xmodmap
+
+  clear lock
+  clear control
+  keycode 66 = Control_L
+  add control = Control_L
+  add Lock = Control_R
+
+#+end_src
+
+** DPI Configuration
+
+The =Xresources= file will be used with =xrdb= in =start-exwm.sh= to set our screen DPI:
+*Currently not in use*
+
+#+begin_src conf :tangle ./exwm/Xresources
+
+  Xft.dpi: 100 # Set this to your desired DPI! Larger number means bigger text and UI.
+
+#+end_src
+
+** Mode Line Status
+
+*Commented out because better functionality with Polybar*
+*** Time and date
+#+begin_src emacs-lisp
+
+  ;; (setq display-time-format "%a %d/%m/%y %H:%M")
+  ;; (setq display-time-day-and-date t) ; Display day and day
+  ;; (display-time-mode 1)        ; Also display the time
+  ;; (setq display-time-24hr-format t) ; Display time as 24H 
+
+#+end_src
+
+*** Laptop
+Tools to make it easier to use your laptop, such as displaying battery in the mode line
+#+begin_src emacs-lisp
+
+  ;; (display-battery-mode 1)    ; Display battery mode ( very useful for laptop) huyaptop
+
+#+end_src
+
+** Maximize Emacs on startup
+
+#+begin_src emacs-lisp
+  (set-frame-parameter (selected-frame) 'fullscreen 'maximized)
+  (add-to-list 'default-frame-alist '(fullscreen . maximized))
+#+end_src
+
+** Desktop environment package
+
+*DEPENDENCIES*
+- brignessctl for controlling the brightness
+- playerctl
+- scrot for screenshots
+  
+#+begin_src emacs-lisp
+  (use-package desktop-environment
+    :after exwm
+    :config (desktop-environment-mode)
+    :custom
+    ;; Brightness increments and decrements
+    (desktop-environment-brightness-small-increment "1%+")
+    (desktop-environment-brightness-small-decrement "1%-")
+    (desktop-environment-brightness-normal-increment "5%+")
+    (desktop-environment-brightness-normal-decrement "5%-")
+
+    ;; Volume increments and decrements
+    (desktop-environment-volume-small-increment "1%+")
+    (desktop-environment-volume-small-decrement "1%-")
+    (desktop-environment-volume-normal-increment "5%+")
+    (desktop-environment-volume-normal-decrement "5%-"))
+
+#+end_src
+
+** Locking the scren
+
+Using slock and xss-lock. Added to startup file.
+
+*DEPENDENCIES*
+- xss-lock
+- slock
+  
+Void linux (xbps):
+#+begin_src sh
+
+  sudo xbps-install slock xss-lock
+
+#+end_src
+
+Ubuntu (apt):
+#+begin_src sh
+
+  sudo apt install slock xss-lock
+
+#+end_src
+
+** Polybar
+*** Installation
+
+Void Linux:
+
+#+begin_src sh
+
+  sudo xbps-install polybar
+
+#+end_src
+
+Also install some icon fonts:
+
+Void Linux:
+
+#+begin_src sh
+
+  sudo xbps-install font-awesome font-material-design-icons-ttf
+
+#+end_src
+
+*** Basic Polybar config
+#+begin_src conf :tangle ~/.config/polybar/config :mkdirp yes
+
+  ; Docs: https://github.com/polybar/polybar
+  ;==========================================================
+
+  [settings]
+  screenchange-reload = true
+
+  [global/wm]
+  margin-top = 0
+  margin-bottom = 0
+
+  [colors]
+  background = #f0232635
+  background-alt = #576075
+  foreground = #A6Accd
+  foreground-alt = #555
+  primary = #ffb52a
+  secondary = #e60053
+  alert = #bd2c40
+  underline-1 = #c792ea
+
+  [bar/panel]
+  width = 100%
+  height = 25
+  offset-x = 0
+  offset-y = 0
+  fixed-center = true
+  enable-ipc = true
+
+  background = ${colors.background}
+  foreground = ${colors.foreground}
+
+  line-size = 2
+  line-color = #f00
+
+  border-size = 0
+  border-color = #00000000
+
+  padding-top = 5
+  padding-left = 1
+  padding-right = 1
+
+  module-margin = 1
+
+  font-0 = "Cantarell:size=14:weight=bold;2"
+  font-1 = "Font Awesome:size=14;2"
+  font-2 = "Material Icons:size=18;5"
+  font-3 = "Fira Mono:size=13;-3"
+
+  modules-left = exwm-workspace
+  modules-right = cpu temperature battery date
+
+  tray-position = right
+  tray-padding = 2
+  tray-maxsize = 28
+
+  cursor-click = pointer
+  cursor-scroll = ns-resize
+
+  [module/exwm-workspace]
+  type = custom/ipc
+  hook-0 = emacsclient -e "exwm-workspace-current-index" | sed -e 's/^"//' -e 's/"$//'
+  initial = 1
+  format-underline = ${colors.underline-1}
+  format-padding = 1
+
+  [module/cpu]
+  type = internal/cpu
+  interval = 1
+  format = <label> <ramp-coreload>
+  format-underline = ${colors.underline-1}
+  click-left = emacsclient -e "(proced)"
+  label = %percentage:2%%
+  ramp-coreload-spacing = 0
+  ramp-coreload-0 = ▁
+  ramp-coreload-0-foreground = ${colors.foreground-alt}
+  ramp-coreload-1 = ▂
+  ramp-coreload-2 = ▃
+  ramp-coreload-3 = ▄
+  ramp-coreload-4 = ▅
+  ramp-coreload-5 = ▆
+  ramp-coreload-6 = ▇
+
+  [module/date]
+  type = internal/date
+  interval = 5
+
+  date = "%d/%m/%y"
+  date-alt = "%a %d/%m/%y"
+
+  time = %H:%M
+  time-alt = %H:%M:%S
+
+  format-prefix-foreground = ${colors.foreground-alt}
+  format-underline = ${colors.underline-1}
+
+  label = %date% %time%
+
+  [module/battery]
+  type = internal/battery
+  battery = BAT0
+  adapter = ADP1
+  full-at = 98
+  time-format = %-l:%M
+
+  label-charging = %percentage%% / %time%
+  format-charging = <animation-charging> <label-charging>
+  format-charging-underline = ${colors.underline-1}
+
+  label-discharging = %percentage%% / %time%
+  format-discharging = <ramp-capacity> <label-discharging>
+  format-discharging-underline = ${self.format-charging-underline}
+
+  format-full = <ramp-capacity> <label-full>
+  format-full-underline = ${self.format-charging-underline}
+
+  ramp-capacity-0 = 
+  ramp-capacity-1 = 
+  ramp-capacity-2 = 
+  ramp-capacity-3 = 
+  ramp-capacity-4 = 
+
+  animation-charging-0 = 
+  animation-charging-1 = 
+  animation-charging-2 = 
+  animation-charging-3 = 
+  animation-charging-4 = 
+  animation-charging-framerate = 750
+
+  [module/temperature]
+  type = internal/temperature
+  ; Thermal zone to use
+  ; To list all the zone types, run 
+  ; $ for i in  /sys/class/thermal/thermal_zone*; do echo "$i: $(<$i/type)"; cat $i/temp; done
+  thermal-zone = 1
+  warn-temperature = 60
+
+  format = <label>
+  format-underline = ${colors.underline-1}
+  format-warn = <label-warn>
+  format-warn-underline = ${self.format-underline}
+
+  label = %temperature-c%
+  label-warn = %temperature-c%!
+  label-warn-foreground = ${colors.secondary}
+
+
+#+end_src
+
+*** Starting Polybar
+#+begin_src emacs-lisp
+
+  ;; Make sure the server is started (better to do this in your main Emacs config!)
+  (server-start)
+
+  (defvar linas/polybar-process nil
+    "Holds the process of the running Polybar instance, if any")
+
+#+end_src
+
+*** Polybar functions
+**** Kill panel
+#+begin_src emacs-lisp
+
+  (defun linas/kill-panel ()
+    (interactive)
+    (when linas/polybar-process
+      (ignore-errors
+        (kill-process linas/polybar-process))))
+
+#+end_src
+
+**** Start panel
+#+begin_src emacs-lisp
+
+  (defun linas/start-panel ()
+    (interactive)
+    (linas/kill-panel)
+    (setq linas/polybar-process (start-process-shell-command "polybar" nil "polybar panel")))
+
+#+end_src
+
+**** Send Polybar hook
+#+begin_src emacs-lisp
+
+  (defun linas/send-polybar-hook (module-name hook-index)
+    (start-process-shell-command "polybar-msg" nil (format "polybar-msg hook %s %s" module-name hook-index)))
+
+#+end_src
+
+**** Send Polybar EXWM workspace
+#+begin_src emacs-lisp
+
+  (defun linas/send-polybar-exwm-workspace ()
+    (linas/send-polybar-hook "exwm-workspace" 1))
+
+#+end_src
+
+*** Hooking Emacs to Polybar
+#+begin_src emacs-lisp
+
+  ;; Update panel indicator when workspace changes
+  (add-hook 'exwm-workspace-switch-hook #'linas/send-polybar-exwm-workspace)
+
+#+end_src
+
+** Desktop Notifications with Dunst
+
+*Dependencies*
+- Dunst
+- dunstctl (comes with dunst from version 1.5.0)
+*** Installation
+Void Linux:
+#+begin_src sh
+
+  sudo xbps-install dunst
+
+#+end_src
+
+*** Dunst configuration
+#+begin_src conf :tangle ~/.config/dunst/dunstrc :mkdirp yes
+
+  [global]
+      ### Display ###
+      monitor = 0
+
+      # The geometry of the window:
+      #   [{width}]x{height}[+/-{x}+/-{y}]
+      geometry = "300x10-10+30"
+
+      # Show how many messages are currently hidden (because of geometry).
+      indicate_hidden = yes
+
+      # Shrink window if it's smaller than the width.  Will be ignored if
+      # width is 0.
+      shrink = no
+
+      # The transparency of the window.  Range: [0; 100].
+      transparency = 10
+
+      # The height of the entire notification.  If the height is smaller
+      # than the font height and padding combined, it will be raised
+      # to the font height and padding.
+      notification_height = 0
+
+      # Draw a line of "separator_height" pixel height between two
+      # notifications.
+      # Set to 0 to disable.
+      separator_height = 1
+      separator_color = frame
+
+      # Padding between text and separator.
+      padding = 8
+
+      # Horizontal padding.
+      horizontal_padding = 8
+
+      # Defines width in pixels of frame around the notification window.
+      # Set to 0 to disable.
+      frame_width = 2
+
+      # Defines color of the frame around the notification window.
+      frame_color = "#89AAEB"
+
+      # Sort messages by urgency.
+      sort = yes
+
+      # Don't remove messages, if the user is idle (no mouse or keyboard input)
+      # for longer than idle_threshold seconds.
+      idle_threshold = 30
+
+      ### Text ###
+
+      font = Cantarell 12
+
+      # The spacing between lines.  If the height is smaller than the
+      # font height, it will get raised to the font height.
+      line_height = 0
+      markup = full
+
+      # The format of the message.  Possible variables are:
+      #   %a  appname
+      #   %s  summary
+      #   %b  body
+      #   %i  iconname (including its path)
+      #   %I  iconname (without its path)
+      #   %p  progress value if set ([  0%] to [100%]) or nothing
+      #   %n  progress value if set without any extra characters
+      #   %%  Literal %
+      # Markup is allowed
+      format = "<b>%s</b>\n%b"
+
+      # Alignment of message text.
+      # Possible values are "left", "center" and "right".
+      alignment = left
+
+      # Show age of message if message is older than show_age_threshold
+      # seconds.
+      # Set to -1 to disable.
+      show_age_threshold = 15
+
+      # Split notifications into multiple lines if they don't fit into
+      # geometry.
+      word_wrap = yes
+
+      # When word_wrap is set to no, specify where to make an ellipsis in long lines.
+      # Possible values are "start", "middle" and "end".
+      ellipsize = middle
+
+      # Ignore newlines '\n' in notifications.
+      ignore_newline = no
+
+      # Stack together notifications with the same content
+      stack_duplicates = true
+
+      # Hide the count of stacked notifications with the same content
+      hide_duplicate_count = false
+
+      # Display indicators for URLs (U) and actions (A).
+      show_indicators = yes
+
+      ### Icons ###
+
+      # Align icons left/right/off
+      icon_position = left
+
+      # Scale larger icons down to this size, set to 0 to disable
+      max_icon_size = 88
+
+      # Paths to default icons. Use : to add multiple paths
+    icon_path = /usr/share/icons/Adwaita/48x48/emblems:/usr/share/icons/Adwaita/48x48/status
+
+      ### History ###
+
+      # Should a notification popped up from history be sticky or timeout
+      # as if it would normally do.
+      sticky_history = no
+
+      # Maximum amount of notifications kept in history
+      history_length = 20
+
+      ### Misc/Advanced ###
+
+      # Browser for opening urls in context menu.
+      browser = qutebrowser
+
+      # Always run rule-defined scripts, even if the notification is suppressed
+      always_run_script = true
+
+      # Define the title of the windows spawned by dunst
+      title = Dunst
+
+      # Define the class of the windows spawned by dunst
+      class = Dunst
+
+      startup_notification = false
+      verbosity = mesg
+
+      # Define the corner radius of the notification window
+      # in pixel size. If the radius is 0, you have no rounded
+      # corners.
+      # The radius will be automatically lowered if it exceeds half of the
+      # notification height to avoid clipping text and/or icons.
+      corner_radius = 4
+
+      mouse_left_click = close_current
+      mouse_middle_click = do_action
+      mouse_right_click = close_all
+
+  # Experimental features that may or may not work correctly. Do not expect them
+  # to have a consistent behaviour across releases.
+  [experimental]
+      # Calculate the dpi to use on a per-monitor basis.
+      # If this setting is enabled the Xft.dpi value will be ignored and instead
+      # dunst will attempt to calculate an appropriate dpi value for each monitor
+      # using the resolution and physical size. This might be useful in setups
+      # where there are multiple screens with very different dpi values.
+      per_monitor_dpi = false
+
+  [shortcuts]
+
+      # Shortcuts are specified as [modifier+][modifier+]...key
+      # Available modifiers are "ctrl", "mod1" (the alt-key), "mod2",
+      # "mod3" and "mod4" (windows-key).
+      # Xev might be helpful to find names for keys.
+
+      # Close notification.
+      #close = ctrl+space
+
+      # Close all notifications.
+      #close_all = ctrl+shift+space
+
+      # Redisplay last message(s).
+      # On the US keyboard layout "grave" is normally above TAB and left
+      # of "1". Make sure this key actually exists on your keyboard layout,
+      # e.g. check output of 'xmodmap -pke'
+      history = ctrl+grave
+
+      # Context menu.
+      context = ctrl+shift+period
+
+  [urgency_low]
+      # IMPORTANT: colors have to be defined in quotation marks.
+      # Otherwise the "#" and following would be interpreted as a comment.
+      background = "#222222"
+      foreground = "#888888"
+      timeout = 10
+      # Icon for notifications with low urgency, uncomment to enable
+      #icon = /path/to/icon
+
+  [urgency_normal]
+      background = "#1c1f26"
+      foreground = "#ffffff"
+      timeout = 10
+      # Icon for notifications with normal urgency, uncomment to enable
+      #icon = /path/to/icon
+
+  [urgency_critical]
+      background = "#900000"
+      foreground = "#ffffff"
+      frame_color = "#ff0000"
+      timeout = 0
+      # Icon for notifications with critical urgency, uncomment to enable
+      #icon = /path/to/icon
+
+#+end_src
+
+*** Control Dunst with dunstctl
+#+begin_src emacs-lisp
+
+  (defun linas/dunstctl (command)
+    (start-process-shell-command "dunstctl" nil (concat "dunstctl " command)))
+
+  (exwm-input-set-key (kbd "s-n") (lambda () (interactive) (linas/dunstctl "history-pop")))
+  (exwm-input-set-key (kbd "s-N") (lambda () (interactive) (linas/dunstctl "close-all")))
+
+#+end_src
+
+*** Interactive funtions to enable/disable notifications
+#+begin_src emacs-lisp
+
+  (defun linas/desktop-notifications-enable ()
+    (interactive)
+    (linas/dunstctl "set-paused false"))
+
+  (defun linas/desktop-notifications-disable ()
+    (interactive)
+    (linas/dunstctl "set-paused true"))
+
+  (defun linas/desktop-notifications-toggle ()
+    (interactive)
+    (linas/dunstctl "set-paused toggle"))
+
+#+end_src
+
+*** Emacs has a built-in function for this:
+#+begin_src emacs-lisp
+
+
+  ;; (notifications-notify :title "From Emacs"
+  ;; :body "This is an notification sent from Emacs!")
+
+#+end_src
+
+** Keyboard layout switching
+
+Function for switching keyboard layout
+
+#+begin_src emacs-lisp
+
+  (defun linas/switch-keyboard-layout (to_layout)
+    "Function to switch between keyboard layouts"
+    (interactive
+     (list (completing-read "MSwitch keybaord layout to: "
+                            '(("us") ("no") ("lt")) nil t)))
+    (start-process-shell-command "setxkbmap" nil (format "setxkbmap %s" to_layout)))
+
+  ;; later use for polybar to display keyboard layout
+  (defun linas/get-keyboard-layout ()
+    (interactive))
+
+#+end_src
+
+* Window Management
+** EXWM Functions
+*** Run in background
+
+#+begin_src emacs-lisp
+
+  (defun linas/run-in-background (command)
+    (let ((command-parts (split-string command "[ ]+")))
+      (apply #'call-process `(,(car command-parts) nil 0 nil ,@(cdr command-parts)))))
+
+#+end_src
+
+*** EXWM Init hook
+
+#+begin_src emacs-lisp
+
+  (defun linas/exwm-init-hook ()
+    ;;   Make workspace 1 to be the one where we land at startup
+    ;;   (exwm-workspace-switch-create 1)
+
+    ;;   Open eshell by defaul
+    ;;   (eshell)
+
+    ;;Launch apps that will run in the background
+    (linas/run-in-background "nm-applet")
+    ;; (linas/run-in-background "pavucontrol")
+    (linas/run-in-background "pasystray")
+    (linas/run-in-background "blueman-applet")
+    (linas/run-in-background "dunst"))
+
+  ;; Start the Polybar panel
+  (linas/start-panel)
+
+#+end_src
+
+*** EXWM Update Class
+
+#+begin_src emacs-lisp
+
+  (defun linas/exwm-update-class ()
+     (exwm-workspace-rename-buffer exwm-class-name))
+
+#+end_src
+
+*** EXWM Update Title
+
+#+begin_src emacs-lisp
+
+  (defun linas/exwm-update-title-firefox-remove-double-name ()
+    (if (string-match-p " — Mozilla Firefox\\'" exwm-title)
+        (substring exwm-title 0 (string-match-p " — Mozilla Firefox\\'" exwm-title))
+      exwm-title))
+
+  ;; Not finished, maninly cuz im retarded
+  ;; (defun linas/exwm-update-title-firefox ()
+  ;;   (interactive)
+  ;; (message (length (linas/exwm-update-title-firefox-remove-double-name)))
+  ;;   (if (> (length linas/exwm-update-title-firefox-remove-double-name) 60)
+  ;;       (concat (substring exwm-title 0 60) "...")
+  ;;     (linas/exwm-update-title-firefox-remove-double-name)))
+
+#+end_src
+
+#+begin_src emacs-lisp
+
+  (defun linas/exwm-update-title ()
+    (pcase exwm-class-name
+      ("Firefox"
+       (exwm-workspace-rename-buffer
+        (format "Firefox: %s" (linas/exwm-update-title-firefox-remove-double-name))))))
+          
+#+end_src
+
+*** Configure window by class
+
+#+begin_src emacs-lisp
+
+  (defun linas/configure-window-by-class ()
+    (interactive)
+    ;; (message "Window '%s' appeared!" exwm-class-name)
+    (pcase exwm-class-name
+      ("mpv" (exwm-floating-toggle-floating)
+       (exwm-layout-toggle-mode-line))
+      ("Firefox" (exwm-workspace-move-window 0))))
+
+#+end_src
+
+*** Position window
+
+#+begin_src emacs-lisp
+
+  (defun linas/position-window ()
+    (let* ((pos (frame-position)
+             (pos-x (car pos))
+             (pos-y (cdr pos)))
+
+          (exwm-floating-move (- pos-x) (- pos-y)))))
+
+#+end_src
+
+*** Set wallpaper
+
+#+begin_src emacs-lisp
+
+  (defun linas/set-wallpaper ()
+    (interactive)
+    (start-process-shell-command
+     "nitrogen" nil "nitrogen --restore"))
+
+#+end_src
+
+** EXWM Configuration
+# #+begin_src emacs-lisp :tangle ./desktop.el 
+
+#+begin_src emacs-lisp
+  (use-package exwm
+    :config
+    ;; Set the default number of workspaces
+    (setq exwm-workspace-number 10)
+
+    ;; Automatically move EXWM buffer to current workspace when slected
+    ;; exwm-switch-to-buffer 
+    ;; (setq exwm-layout-show-all-buffers t)
+
+
+    ;; Display all EXWM buffers in every workspace buffer list
+    ;; (setq exwm-workspace-show-all-buffers t) 
+
+    ;; When window "class" updates, use it to set the buffer name
+    (add-hook 'exwm-update-class-hook #'linas/exwm-update-class)
+
+    ;; When window title updates, use it to set the buffer name
+    (add-hook 'exwm-update-title-hook #'linas/exwm-update-title)
+
+    ;; When EXWM starts up, do some extra configuration
+    (add-hook 'exwm-init-hook #'linas/exwm-init-hook)
+
+    ;; Set the screen resolution
+    (require 'exwm-randr)
+    (exwm-randr-enable)
+    (start-process-shell-command "xrandr" nil "xrandr --output eDP1 --primary --mode 1920x1080 --pos 0x0 --rotate normal")
+
+    (linas/set-wallpaper)
+
+    ;; Load the system tray before exwm-init
+    ;; Commented out because using polybar
+    ;; (require 'exwm-systemtray)
+    ;; (setq exwm-systemtray-height 20)
+    ;; (exwm-systemtray-enable)
+
+    ;; These keys should always pass through to Emacs
+    (setq exwm-input-prefix-keys
+          '(?\C-x
+            ?\C-u
+            ?\C-h
+            ?\M-x
+            ?\M-`
+            ?\M-&
+            ?\M-:
+            ?\C-\M-j  ;; Buffer list
+            ?\C-\ ))  ;; Ctrl+Space
+
+    ;; Ctrl+Q will enable the next key to be sent directly
+    (define-key exwm-mode-map [?\C-q] 'exwm-input-send-next-key)
+
+    ;; Set up global key bindings.  These always work, no matter the input state!
+    ;; Keep in mind that changing this list after EXWM initializes has no effect.
+    (setq exwm-input-global-keys
+          `(
+            ;; Reset to line-mode (C-c C-k switches to char-mode via exwm-input-release-keyboard)
+            ([?\s-r] . exwm-reset)
+
+            ;; Move between windows
+            ([?\s-h] . windmove-left)
+            ([?\s-l] . windmove-right)
+            ([?\s-k] . windmove-up)
+            ([?\s-j] . windmove-down)
+
+            ;; Launch applications via shell command
+            ([?\s-&] . (lambda (command)
+                         (interactive (list (read-shell-command "$ ")))
+                         (start-process-shell-command command nil command)))
+
+            ;; Switch workspace
+            ([?\s-w] . exwm-workspace-switch)
+
+            ;; 's-N': Switch to certain workspace with Super (Win) plus a number key (0 - 9)
+            ,@(mapcar (lambda (i)
+                        `(,(kbd (format "s-%d" i)) .
+                          (lambda ()
+                            (interactive)
+                            (exwm-workspace-switch-create ,i))))
+                      (number-sequence 0 9))))
+
+    (exwm-input-set-key (kbd "s-SPC") 'counsel-linux-app)
+    (exwm-input-set-key (kbd "s-f") 'exwm-layout-toggle-fullscreen)
+
+    (exwm-enable))
+#+end_src
+
+* Desktop Applications
+** Password Encryption
+*** Authentication Sources
+
+The =auth-source= library looks for passwords in a set of sources configured by the variable =auth-sources.=
+
+By default it looks at:
+
+- =~/.authinfo.gpg=
+- =~/.authinfo=
+- =~/.netrc=
+
+*** The .authinfo file
+
+Passwords stored in a file named =~/.authinfo= in this format, one per line:
+
+#+begin_src conf
+
+  machine facebook.com login zuck password w0rldd0m1n4ti0n
+  machine mailprovider.com login mailuser password b4dp4ssw0rd port 433
+  machine mailprovider.com login mailuser password worsepassword
+
+#+end_src
+
+The =auth-source-search= function can read this file and search for entries based on any of the details they contain:
+
+#+begin_src emacs-lisp :tangle no
+
+  (auth-source-search :host "facebook.com")
+  (auth-source-search :host "mailprovider.com" :user "mailuser")
+  (auth-source-search :host "mailprovider.com" :user "mailuser" :port 433)
+
+#+end_src
+
+The benefit of using =.authinfo= is that it's a file you have control over and can sync between systems (once encrypted!)  More easily portable than using one of the desktop environment keyrings.
+
+*** Encrypting .authinfo
+
+However, this file is plaintext by default, which is unsafe from a security standpoint!
+
+Emacs uses GnuPG via the =epa= library to automatically encrypt and decrypt any files that end with =.gpg=, so we can create a file named =.authinfo.gpg= with the same contents to have them be encrypted on save.
+
+[[https://www.gnu.org/software/emacs/manual/html_mono/epa.html][Emacs Manual: Easy PGP Assistant]] (=epa=)
+
+*** Creating an encryption key
+
+But first, we need to generate an encryption key!  The following command (in GPG 2.2 and above) will walk you through the process of creating a new key:
+
+#+begin_src sh :tangle no
+
+  gpg --full-generate-key
+
+#+end_src
+
+We need to answer some questions it asks us:
+
+1. What kind of key do you want?  *(1) RSA and RSA (default)*
+2. What keysize do you want? *4096*
+3. How long should the key be valid? *0* (Key does not expire)
+4. Enter your name
+5. Enter your e-mail address
+6. Enter a comment for the key (not necessary, but can be used to identify it)
+7. If everything looks good, press *O* for "Okay"
+8. You will now be prompted for a passphrase.  This is like a password for your encryption key, it should be secure and memorable!
+9. After entering the password, it will generate the new key.  Move the mouse around or press keyboard keys to help generate entropy.
+
+You should now have a new key that will show up when you run the following command:
+
+#+begin_src sh
+
+  gpg --list-keys
+
+#+end_src
+
+We can test this out by editing the new =~/.authinfo.gpg= file and then paste the contents from the original =~/.authinfo= file we created.
+
+Once you save the =~/.authinfo.gpg= file, a new Emacs window will appear and you will be prompted for which key to use to encrypt the file:
+
+#+begin_src sh
+
+  Select recipients for encryption.
+  If no one is selected, symmetric encryption will be performed.
+  - ‘m’ to mark a key on the line
+  - ‘u’ to unmark a key on the line
+  [Cancel][OK]
+
+#+end_src
+
+If you only have one encryption key, this is all that will appear.  You merely need to move your keyboard cursor on top of the string =[OK]= and press enter.  You will be prompted for your passphrase to unlock the key and the file will be encrypted once you save it successfully.
+
+ If you have more than one encryption key, they will be listed below the prompt:
+
+#+begin_src sh
+
+  Select recipients for encryption.
+  If no one is selected, symmetric encryption will be performed.
+  - ‘m’ to mark a key on the line
+  - ‘u’ to unmark a key on the line
+  [Cancel][OK]
+
+    u FF0E73B64BBEB63F System Crafters (Password Encryption Key) <systemcrafterstest@gmail.com>
+    u C0495F71F74DC5E9 David Wilson <david@systemcrafters.cc>
+
+#+end_src
+
+You will need to move your keyboard cursor to the line with the key you would like to use and press the letter =m= to mark the key, then move the cursor to =[OK]= and press Enter.  You will be prompted for your passphrase to unlock the key and the file will be encrypted once you save it successfully.
+
+*** Verifying that it works
+
+You can verify that the file is encrypted by trying to read it at the shell:
+
+#+begin_src sh
+
+  cat ~/.authinfo.gpg
+
+#+end_src
+
+You can also double-check that the passwords are accessible to =auth-source-search=:
+
+#+begin_src emacs-lisp :tangle no
+
+  (auth-source-search :host "facebook.com" :user "96801405")
+  (auth-source-search :host "mailprovider.com" :user "mailuser")
+  (auth-source-search :host "mailprovider.com" :user "mailuser" :port 433)
+
+#+end_src
+
+*** Starting gpg-agent
+
+The =gpg-agent= manages access to your PGP keys and assists with encryption and decryption of files.  It can also cache your passphrase so that you don't get prompted for it every time you try to encrypt or decrypt a file.
+
+Emacs' =epa= library may be able to automatically start it for you when you try to encrypt or decrypt a file.  If it doesn't, you may need to start it yourself!
+
+We need to make sure the =gpg-agent= is running:
+
+#+begin_src sh :tangle no
+
+  # Check if gpg-agent is already running
+  pgrep gpg-agent
+
+  # If it's not running, you can start it up with this command:
+  gpg-connect-agent /bye
+
+#+end_src
+
+In Ubuntu 20.04, it seems to be started as a user service.  If it isn't running by default in your system, you may need to add =gpg-connect-agent /bye= as a startup command in your desktop environment or however you start Xorg sessions.
+
+*** Accessing passwords outside of Emacs
+
+If you have Emacs running as a daemon or in server mode (see [[https://youtu.be/ZjCRxAMPdNc][my video]] on that) you can use =emacsclient= to access your passwords from other programs (like =mbsync=, etc).
+
+First we'll create a helper function to add to our configuration to make this a little easier to call:
+
+#+begin_src emacs-lisp
+
+  (defun linas/lookup-password (&rest keys)
+    (interactive)
+    (let ((result (apply #'auth-source-search keys)))
+      (if result
+          (funcall (plist-get (car result) :secret))
+        nil)))
+
+#+end_src
+
+Now you can invoke =emacsclient= in the shell to run this function and process the result:
+
+#+begin_src sh
+
+  emacsclient -e "(linas/lookup-password :host \"gmail.com\" :user \"linasvidz@gmail.com\")" | cut -d '"' -f2
+
+#+end_src
+
+Any program that can call an external shell application can now use this line to request the unencrypted password!  When the password is requested, you will be prompted for your passphrase if it has been a while since the last time you were asked.
+
+For example, in the =mbsync= config from the Emacs Mail series:
+
+#+begin_src conf
+
+  PassCmd "emacsclient -e \"(linas/lookup-password :host \\\"gmail.com\\\" :user \\\"systemcrafters.test\\\")\" | cut -d '\"' -f2"
+
+#+end_src
+
+*** GPG Password input in Emacs
+*Dependencies*
+- pinentry-emacs
+
+**** Enable emacs pinentry and loopback mode for gpg-agent
+#+begin_src conf :tangle ~/.gnupg/gpg.conf :mkdirp yes
+
+  use-agent 
+  pinentry-mode loopback
+
+#+end_src
+
+#+begin_src conf :tangle ~/.gnupg/gpg-agent.conf :mkdirp yes
+
+  # this means clients like Emacs can get the password in their own way and push to gpg
+  # for this to work with Emacs, set epa-pinentry-mode to 'loopback in Emacs
+  # allow-loopback-pinentry
+  allow-emacs-pinentry
+
+#+end_src
+
+Then tell gpg-agent to load this configuration with ~gpgconf~ in shell:
+
+#+begin_src shell
+
+  gpgconf --reload gpg-agent
+
+#+end_src
+
+**** Configure EasyPG Assistant to use loopback for pinentry
+
+#+begin_src emacs-lisp
+
+  (setq epg-pinentry-mode 'loopback)
+
+#+end_src
+
+** Email
+*** Syncing you mail
+**** Configuring mbsync
+Today we'll sync a Gmail account since they're pretty common. In another episode we'll show a more traditional IMAP account too.
+
+We'll use a program called ~isync~ (in practice it's ~mbsync~!) to sync our mail. You can also use a program called ~offlineimap~, it's a bit slower but works on Windows too.
+
+Void Linux install:
+#+begin_src sh
+
+  sudo xbps-install isync
+
+#+end_src
+
+Set up an initial configuration at ~/.mbsyncrc:
+
+#+begin_src conf :tangle ~/.mbsyncrc
+  IMAPAccount gmail
+  Host imap.gmail.com
+  User linasvidz@gmail.com
+  PassCmd "emacsclient -e \"(linas/lookup-password :host \\\"gmail.com\\\" :user \\\"linasvidz@gmail.com\\\")\" | cut -d '\"' -f2"
+  SSLType IMAPS
+  CertificateFile /etc/ssl/certs/ca-certificates.crt
+
+  IMAPStore gmail-remote
+  Account gmail
+
+  MaildirStore gmail-local
+  Subfolders Verbatim
+  Path ~/Mail/linasvidz@gmail.com/
+  Inbox ~/Mail/linasvidz@gmail.com/Inbox
+
+  Channel gmail
+  Master :gmail-remote:
+  Slave :gmail-local:
+  Patterns * ![Gmail]* "[Gmail]/Sent Mail" "[Gmail]/Starred" "[Gmail]/All Mail" "[Gmail]/Trash"
+  Create Both
+  SyncState *
+
+  IMAPAccount school 
+  Host outlook.office365.com
+  Port 993
+  User 254664@uis.no
+  PassCmd "emacsclient -e \"(linas/lookup-password :host \\\"office365.com\\\" :user \\\"254664@uis.no\\\")\" | cut -d '\"' -f2"
+  UseIMAPS yes
+  CertificateFile /etc/ssl/certs/ca-certificates.crt
+
+  IMAPStore school-remote
+  Account school 
+
+  MaildirStore school-local
+  Subfolders Verbatim
+  Path ~/Mail/school/
+  Inbox ~/Mail/school/Inbox
+
+  Channel school
+  Master :school-remote:
+  Slave :school-local:
+  # Include everything
+  Patterns "INBOX" "*"
+  # Automatically create missing mailboxes, both locally and on the server
+  Create Both
+  Sync All
+  # Save the synchronization state files in the relevant directory
+  SyncState *
+#+end_src
+
+**** Setting up mu to index the mailbox
+Install ~mu4e~ package:
+
+Void Linux:
+
+#+begin_src sh
+
+  sudo xbps-install mu4e
+
+#+end_src
+
+Run the initial index, providing your e-mail address so it knows how to identify you:
+
+#+begin_src sh
+
+  mu index --maildir=~/Mail --my-address=linasvidz@gmail.com
+
+#+end_src
+
+*** Managing Mail with mu4e
+
+#+begin_src emacs-lisp
+
+  (use-package mu4e
+    :ensure nil
+    :load-path "/usr/share/emacs/site-lisp/mu4e/"
+    :defer 10 ; Wait until 10 seconds after startup
+    :config
+
+    ;; Pull in org helpers
+    (require 'mu4e-org)
+
+    ;; This is set to 't' to avoid mail syncing issues when using mbsync
+    (setq mu4e-change-filenames-when-moving t)
+
+    ;; Refresh mail using isync every 2 minutes
+    (setq mu4e-update-interval (* 2 60))
+    (setq mu4e-get-mail-command "mbsync -a")
+    (setq mu4e-maildir "~/Mail")
+
+    (setq mu4e-contexts
+          (list
+           ;; Main personal account
+           (make-mu4e-context
+            :name "linasvidz@gmail.com"
+            :match-func
+            (lambda (msg)
+              (when msg
+                (string-prefix-p "/linasvidz@gmail.com" (mu4e-message-field msg :maildir))))
+            :vars '((user-mail-address . "linasvidz@gmail.com")
+                    (user-full-name    . "Linas Vidziunas")
+                    (mu4e-compose-signature  . "Linas Vidziunas")
+                    (smtpmail-smtp-server  . "smtp.gmail.com")
+                    (smtpmail-smtp-service  . 465)
+                    (smtpmail-stream-type  . ssl)
+                    (mu4e-drafts-folder  . "/linasvidz@gmail.com/[Gmail]/Drafts")
+                    (mu4e-sent-folder  . "/linasvidz@gmail.com/[Gmail]/Sent Mail")
+                    (mu4e-refile-folder  . "/linasvidz@gmail.com/[Gmail]/All Mail")
+                    (mu4e-trash-folder  . "/linasvidz@gmail.com/[Gmail]/Trash")))
+
+           ;; School account
+           (make-mu4e-context
+            :name "school"
+            :match-func
+            (lambda (msg)
+              (when msg
+                (string-prefix-p "/school" (mu4e-message-field msg :maildir))))
+            :vars '((user-mail-address . "254664@uis.no")
+                    (user-full-name    . "Linas Vidziunas")
+                    (mu4e-compose-signature  . "Linas Vidzinas (254664)")
+                    (smtpmail-smtp-server  . "smtp.office365.com")
+                    (smtpmail-smtp-service  . 587)
+                    (smtpmail-stream-type  . starttls)
+                    (mu4e-drafts-folder  . "/school/Drafts")
+                    (mu4e-sent-folder  . "/school/Sent Mail")
+                    (mu4e-refile-folder  . "/school/All Mail")
+                    (mu4e-trash-folder  . "/school/Trash")))))
+
+    ;; Email Capture Templates
+    (setq org-capture-templates
+          `(("m" "Email Workflow")
+            ("mf" "Follow Up" entry (file+olp "~/org/Mail.org" "Follow Up")
+             "* TODO Follow up with %:fromname on %a\n    SCHEDULED:%t\n    DEADLINE:%(org-insert-time-stamp (org-read-date nil t \"+2d\"))\n\n    <%:fromaddress> on %:date-timestamp\n\n\t%a\n\n\t%i"
+             :immediate-finish t)
+            ("mr" "Read Later" entry (file+olp "~/org/Mail.org" "Read Later")
+             "* TODO Read %a\n    SCHEDULED:%t\n    DEADLINE:%(org-insert-time-stamp (org-read-date nil t \"+2d\"))\n\n    <%:fromaddress> on %:date-timestamp\n\n\t%a\n\n\t%i"
+             :immediate-finish t)))
+
+    (defun linas/capture-mail-follow-up (msg)
+      (interactive)
+      (call-interactively 'org-store-link)
+      (org-capture nil "mf"))
+
+    (defun linas/capture-mail-read-later (msg)
+      (interactive)
+      (call-interactively 'org-store-link)
+      (org-capture nil "mf"))
+
+    (defun linas/store-link-to-mu4e-query ()
+      (interactive)
+      (let ((mu4e-org-link-query-in-headers-mode t))
+        (call-interactively 'org-store-link)))
+
+    ;; Add custom actions for our capture templates
+    (add-to-list 'mu4e-headers-actions
+                 '("follow up" . linas/capture-mail-follow-up) t)
+    (add-to-list 'mu4e-view-actions
+                 '("follow up" . linas/capture-mail-follow-up) t)
+    (add-to-list 'mu4e-headers-actions
+                 '("read later" . linas/capture-mail-read-later) t)
+    (add-to-list 'mu4e-view-actions
+                 '("read later" . linas/capture-mail-read-later) t)
+
+    (setq mu4e-maildir-shortcuts
+          '((:maildir "/linasvidz@gmail.com/Inbox"    :key ?i)
+            (:maildir "/linasvidz@gmail.com/[Gmail]/Sent Mail" :key ?s)
+            (:maildir "/linasvidz@gmail.com/[Gmail]/Trash"     :key ?t)
+            (:maildir "/linasvidz@gmail.com/[Gmail]/Drafts"    :key ?d)
+            (:maildir "/linasvidz@gmail.com/[Gmail]/All Mail"  :key ?a)))
+
+    ;; Annoyingly the first mail has to be sent synchrounously
+    (setq send-mail-function 'smtpmail-send-it)
+    (setq message-send-mail-function 'smtpmail-send-it)
+
+    ;; My attemt at async mail
+    ;; (setq linas/smtp-to-async-smtp-mails-sent 0)
+    ;; (defun linas/smtp-to-async-smtp ()
+    ;;   (message "Message sent synchronously")
+    ;;   ;; Why 2? how the fuck im I supposed to know
+    ;;   (when (> linas/smtp-to-async-smtp-mails-sent 2)
+    ;;     (require 'smtpmail-async)
+    ;;     (message "Message sent asynchronously")
+    ;;     (setq send-mail-function 'async-smtpmail-send-it)
+    ;;     (setq message-send-mail-function 'async-smtpmail-send-it))
+    ;;   (setq linas/smtp-to-async-smtp-mails-sent (+ linas/smtp-to-async-smtp-mails-sent 1)))
+
+    ;; (add-hook 'message-sent-hook #'linas/smtp-to-async-smtp)
+
+    ;; When enters main view picks the first context (first email)
+    (setq mu4e-context-policy 'pick-first)
+
+    ;; Make sure plain text mails flow correctly for recipients
+    (setq mu4e-compose-format-flowed t)
+
+    ;; Defaults
+    ;; (setq mu4e-date-format-long "%c")
+    ;; (setq mu4e-view-date-format "%c")
+    ;; (setq mu4e-headers-long-date-format "%c")
+    ;; (setq mu4e-headers-date-format "%x")
+    (setq mu4e-headers-date-format "%d/%m/%y")
+
+    (mu4e t))
+#+end_src
+
+*** Email
+
+#+begin_src emacs-lisp
+
+  (use-package mu4e-column-faces
+    :after mu4e
+    :config (mu4e-column-faces-mode))
+
+#+end_src
+
+*** Email Desktop Notifications with Mu4e-alert
+
+#+begin_src emacs-lisp
+
+  (use-package mu4e-alert
+    :after mu4e
+    :custom
+    ;; Disable double notifications per email. annoying
+    (mu4e-alert-email-notification-types '(subjects))
+    :config
+    (mu4e-alert-set-default-style 'libnotify)
+    (mu4e-alert-enable-notifications))
+
+  ;; mu4e-alert fix
+  ;; Annoying but looks like dev is dead
+  (defun mu4e-alert--get-mu4e-frame ()
+    "Try getting a frame containing a mu4e buffer."
+    (car (delq nil (mapcar (lambda (buffer)
+                             (when (and buffer
+                                        (get-buffer-window buffer t))
+                               (window-frame (get-buffer-window buffer t))))
+                           (list mu4e-main-buffer-name)))))
+
+  (defun mu4e-alert-filter-repeated-mails (mails)
+    "Filters the MAILS that have been seen already."
+    (cl-remove-if (lambda (mail)
+                    (prog1 (and (not mu4e-alert-notify-repeated-mails)
+                                (ht-get mu4e-alert-repeated-mails
+                                        (plist-get mail :message-id)))
+                      (ht-set! mu4e-alert-repeated-mails
+                               (plist-get mail :message-id)
+                               t)
+                      ))
+                  mails))
+#+end_src
+
+*** HTML-formatted emails
+
+*Important* Use ~M-x org-mime-htmlize~ to htmlize org formatted text. Use ~M-x org-mime-edit-mail-in-org-mode~ to compose in org mode.
+#+begin_src emacs-lisp
+
+  (use-package org-mime
+    :after mu4e
+    :ensure t
+    :custom
+    (org-mime-export-options '(:section-numbers nil
+                                                :with-author nil
+                                                :with-toc nil))
+    :config
+    (add-hook 'message-send-hook 'org-mime-confirm-when-no-multipart))
+
+#+end_src
+
+** Qutebrowser
+*** Configuration
+
+#+begin_src python :tangle ~/.config/qutebrowser/config.py :mkdirp yes
+
+# Autogenerated config.py
+#
+# NOTE: config.py is intended for advanced users who are comfortable
+# with manually migrating the config file on qutebrowser upgrades. If
+# you prefer, you can also configure qutebrowser using the
+# :set/:bind/:config-* commands without having to write a config.py
+# file.
+#
+# Documentation:
+#   qute://help/configuring.html
+#   qute://help/settings.html
+
+# Change the argument to True to still load settings configured via autoconfig.yml
+config.load_autoconfig(False)
+
+# Which cookies to accept. With QtWebEngine, this setting also controls
+# other features with tracking capabilities similar to those of cookies;
+# including IndexedDB, DOM storage, filesystem API, service workers, and
+# AppCache. Note that with QtWebKit, only `all` and `never` are
+# supported as per-domain values. Setting `no-3rdparty` or `no-
+# unknown-3rdparty` per-domain on QtWebKit will have the same effect as
+# `all`. If this setting is used with URL patterns, the pattern gets
+# applied to the origin/first party URL of the page making the request,
+# not the request URL. With QtWebEngine 5.15.0+, paths will be stripped
+# from URLs, so URL patterns using paths will not match. With
+# QtWebEngine 5.15.2+, subdomains are additionally stripped as well, so
+# you will typically need to set this setting for `example.com` when the
+# cookie is set on `somesubdomain.example.com` for it to work properly.
+# To debug issues with this setting, start qutebrowser with `--debug
+# --logfilter network --debug-flag log-cookies` which will show all
+# cookies being set.
+# Type: String
+# Valid values:
+#   - all: Accept all cookies.
+#   - no-3rdparty: Accept cookies from the same origin only. This is known to break some sites, such as GMail.
+#   - no-unknown-3rdparty: Accept cookies from the same origin only, unless a cookie is already set for the domain. On QtWebEngine, this is the same as no-3rdparty.
+#   - never: Don't accept cookies at all.
+config.set('content.cookies.accept', 'all', 'chrome-devtools://*')
+
+# Which cookies to accept. With QtWebEngine, this setting also controls
+# other features with tracking capabilities similar to those of cookies;
+# including IndexedDB, DOM storage, filesystem API, service workers, and
+# AppCache. Note that with QtWebKit, only `all` and `never` are
+# supported as per-domain values. Setting `no-3rdparty` or `no-
+# unknown-3rdparty` per-domain on QtWebKit will have the same effect as
+# `all`. If this setting is used with URL patterns, the pattern gets
+# applied to the origin/first party URL of the page making the request,
+# not the request URL. With QtWebEngine 5.15.0+, paths will be stripped
+# from URLs, so URL patterns using paths will not match. With
+# QtWebEngine 5.15.2+, subdomains are additionally stripped as well, so
+# you will typically need to set this setting for `example.com` when the
+# cookie is set on `somesubdomain.example.com` for it to work properly.
+# To debug issues with this setting, start qutebrowser with `--debug
+# --logfilter network --debug-flag log-cookies` which will show all
+# cookies being set.
+# Type: String
+# Valid values:
+#   - all: Accept all cookies.
+#   - no-3rdparty: Accept cookies from the same origin only. This is known to break some sites, such as GMail.
+#   - no-unknown-3rdparty: Accept cookies from the same origin only, unless a cookie is already set for the domain. On QtWebEngine, this is the same as no-3rdparty.
+#   - never: Don't accept cookies at all.
+config.set('content.cookies.accept', 'all', 'devtools://*')
+
+# Value to send in the `Accept-Language` header. Note that the value
+# read from JavaScript is always the global value.
+# Type: String
+config.set('content.headers.accept_language', '', 'https://matchmaker.krunker.io/*')
+
+# User agent to send.  The following placeholders are defined:  *
+# `{os_info}`: Something like "X11; Linux x86_64". * `{webkit_version}`:
+# The underlying WebKit version (set to a fixed value   with
+# QtWebEngine). * `{qt_key}`: "Qt" for QtWebKit, "QtWebEngine" for
+# QtWebEngine. * `{qt_version}`: The underlying Qt version. *
+# `{upstream_browser_key}`: "Version" for QtWebKit, "Chrome" for
+# QtWebEngine. * `{upstream_browser_version}`: The corresponding
+# Safari/Chrome version. * `{qutebrowser_version}`: The currently
+# running qutebrowser version.  The default value is equal to the
+# unchanged user agent of QtWebKit/QtWebEngine.  Note that the value
+# read from JavaScript is always the global value. With QtWebEngine
+# between 5.12 and 5.14 (inclusive), changing the value exposed to
+# JavaScript requires a restart.
+# Type: FormatString
+config.set('content.headers.user_agent', 'Mozilla/5.0 ({os_info}) AppleWebKit/{webkit_version} (KHTML, like Gecko) {upstream_browser_key}/{upstream_browser_version} Safari/{webkit_version}', 'https://web.whatsapp.com/')
+
+# User agent to send.  The following placeholders are defined:  *
+# `{os_info}`: Something like "X11; Linux x86_64". * `{webkit_version}`:
+# The underlying WebKit version (set to a fixed value   with
+# QtWebEngine). * `{qt_key}`: "Qt" for QtWebKit, "QtWebEngine" for
+# QtWebEngine. * `{qt_version}`: The underlying Qt version. *
+# `{upstream_browser_key}`: "Version" for QtWebKit, "Chrome" for
+# QtWebEngine. * `{upstream_browser_version}`: The corresponding
+# Safari/Chrome version. * `{qutebrowser_version}`: The currently
+# running qutebrowser version.  The default value is equal to the
+# unchanged user agent of QtWebKit/QtWebEngine.  Note that the value
+# read from JavaScript is always the global value. With QtWebEngine
+# between 5.12 and 5.14 (inclusive), changing the value exposed to
+# JavaScript requires a restart.
+# Type: FormatString
+config.set('content.headers.user_agent', 'Mozilla/5.0 ({os_info}; rv:90.0) Gecko/20100101 Firefox/90.0', 'https://accounts.google.com/*')
+
+# User agent to send.  The following placeholders are defined:  *
+# `{os_info}`: Something like "X11; Linux x86_64". * `{webkit_version}`:
+# The underlying WebKit version (set to a fixed value   with
+# QtWebEngine). * `{qt_key}`: "Qt" for QtWebKit, "QtWebEngine" for
+# QtWebEngine. * `{qt_version}`: The underlying Qt version. *
+# `{upstream_browser_key}`: "Version" for QtWebKit, "Chrome" for
+# QtWebEngine. * `{upstream_browser_version}`: The corresponding
+# Safari/Chrome version. * `{qutebrowser_version}`: The currently
+# running qutebrowser version.  The default value is equal to the
+# unchanged user agent of QtWebKit/QtWebEngine.  Note that the value
+# read from JavaScript is always the global value. With QtWebEngine
+# between 5.12 and 5.14 (inclusive), changing the value exposed to
+# JavaScript requires a restart.
+# Type: FormatString
+config.set('content.headers.user_agent', 'Mozilla/5.0 ({os_info}) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99 Safari/537.36', 'https://*.slack.com/*')
+
+# Load images automatically in web pages.
+# Type: Bool
+config.set('content.images', True, 'chrome-devtools://*')
+
+# Load images automatically in web pages.
+# Type: Bool
+config.set('content.images', True, 'devtools://*')
+
+# Enable JavaScript.
+# Type: Bool
+config.set('content.javascript.enabled', True, 'chrome-devtools://*')
+
+# Enable JavaScript.
+# Type: Bool
+config.set('content.javascript.enabled', True, 'devtools://*')
+
+# Enable JavaScript.
+# Type: Bool
+config.set('content.javascript.enabled', True, 'chrome://*/*')
+
+# Enable JavaScript.
+# Type: Bool
+config.set('content.javascript.enabled', True, 'qute://*/*')
+
+# Tabs are windows for EXWM, switch tabs with counsel switch buffer
+config.set('tabs.tabs_are_windows', True)
+
+# And never show tabs
+config.set('tabs.show', "never")
+
+#+end_src
+
+*** Qute-pass
+
+To get qute pass to work you need a python3 module called tldextract
+
+On Void Linux:
+
+#+begin_src sh :tangle no
+
+  sudo xbps-install python3-tldextract
+
+#+end_src
+
+After installation test it by running in qutebrowser
+
+#+begin_src conf :tangle no
+
+  :spawn --userscript qute-pass
+
+#+end_src
+
+You may also need to change the permissions in for '/usr/lib/python3.9/site-packages/tldextract/tld_set', as I had to on Linux Void
+Giving usergroup permission to write and read:
+
+#+begin_src shell :tangle no
+
+  sudo chmod g+wr /usr/lib/python3.9/site-packages/tldextract/
+
+#+end_src

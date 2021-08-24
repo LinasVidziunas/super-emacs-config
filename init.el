@@ -1,4 +1,4 @@
-;; The default iisplay-startup-time)
+;; (The default iisplay-startup-time)
 
 ;; Initialize package sources
 (require 'package)
@@ -29,19 +29,8 @@
   (auto-package-update-maybe)
   (auto-package-update-at-time "09:00"))
 
-;; NOTE: If you want to move everything out of the ~/.emacs.d folder
-;; reliably, set `user-emacs-directory` before loading no-littering!
-;(setq user-emacs-directory "~/.cache/emacs")
-
-(use-package no-littering)
-
-;; no-littering doesn't set this by default so we must place
-;; auto save files in the same path as it uses for sessions
-(setq auto-save-file-name-transforms
-      `((".*" ,(no-littering-expand-var-file-name "auto-save/") t)))
-
-(defvar default-font-size 85)
-(defvar default-variable-font-size 100)
+(defvar linas/default-font-size 120)
+(defvar linas/default-variable-font-size 120)
 (defvar linas/frame-transparency '(90 . 90))
 
 (setq inhibit-startup-message t)
@@ -51,18 +40,13 @@
 (tooltip-mode -1)		; Disable tooltips
 (set-fringe-mode 10)		; Give some breathing room
 
-(set-frame-parameter (selected-frame) 'alpha linas/frame-transparency)
-(add-to-list 'default-frame-alist `(alpha . ,linas/frame-transparency))
-(set-frame-parameter (selected-frame) 'fullscreen 'maximized)
-(add-to-list 'default-frame-alist '(fullscreen . maximized))
-
 (menu-bar-mode -1)		; Disable the menu bar
 
 ;; Set up the visible bell
 (setq visible-bell t)
 
-(display-time-mode 1)        ; Also display the time
-(setq display-time-24hr-format 1) ; Display time as 24H
+(set-frame-parameter (selected-frame) 'alpha linas/frame-transparency)
+(add-to-list 'default-frame-alist `(alpha . ,linas/frame-transparency))
 
 ;; Enabling line numbers
 (column-number-mode)
@@ -74,23 +58,34 @@
                 shell-mode-hook
                 treemacs-mode-hook
                 vterm-mode-hook
-
+                mu4e-main-mode-hook
+                mu4e-headers-mode-hook
                 eshell-mode-hook))
   (add-hook mode (lambda() (display-line-numbers-mode 0))))
 
-;; Font
-(set-face-attribute 'default nil :font "Jetbrains Mono" :height default-font-size)
-;(set-face-attribute 'fixed-pitch nil :font "Fira Code" :height default-font-size)
+(defun linas/set-font-faces ()
+  ;; Font
+  ;;(set-face-attribute 'default nil :font "Jetbrains Mono" :height default-font-size)
+  (set-face-attribute 'default nil :font "Fira Code Retina" :height linas/default-font-size)
 
-;; Set the fixed pitch face
-;(set-face-attribute 'fixed-pitch nil :font "Fira Code Retina" :height 260)
-(set-face-attribute 'fixed-pitch nil :font "Jetbrains Mono" :height default-font-size)
-;(set-face-attribute 'fixed-pitch nil :font "Fira Code" :height default-font-size)
+  ;; Set the fixed pitch face
+  (set-face-attribute 'fixed-pitch nil :font "Fira Code Retina" :height linas/default-font-size)
+  ;;(set-face-attribute 'fixed-pitch nil :font "Jetbrains Mono" :height default-font-size)
+  :;(set-face-attribute 'fixed-pitch nil :font "Fira Code" :height default-font-size)
 
-;; Set the variable pitch face
-(set-face-attribute 'variable-pitch nil :font "Cantarell" :height default-variable-font-size :weight 'regular)
+  ;; Set the variable pitch face
+  (set-face-attribute 'variable-pitch nil :font "Cantarell" :height linas/default-variable-font-size :weight 'regular))
 
-(display-battery-mode 1)    ; Display battery mode ( very useful for laptop) huyaptop
+;; Not working for some reason
+;; (if (deamonp)
+;;     (add-hook 'after-make-frame-functions
+;;               (lambda (frame)
+;;                 (setq doom-modeline-icon t)
+;;                 (with-selected-frame frame
+;;                   (linas/set-font-faces))))
+;;   (linas/set-font-faces))
+
+(linas/set-font-faces)
 
 ;; Make ESC quit prompts
 (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
@@ -110,8 +105,15 @@
    "o" '(:ignore t :which-key "open")
    "op" '(treemacs :which-key "Treemacs")
 
+   ;; Open shell
    "os" '(:ignore t :which-key "shells")
-   "ose" '(eshell :which-key "Eshell")))
+   "ose" '(eshell :which-key "Eshell")
+
+   "x" '(:ignore t :which-key "exwm")
+   "xh" '(:ignore t :which-key "horizontal size")
+   "xhk" '((lambda () (interactive) (exwm-layout-enlarge-window-horizontally 100)) :which-key "enlarge +100")
+   "xhj" '((lambda () (interactive) (exwm-layout-shrink-window-horizontally 100)) :which-key "shrink +100")
+   ))
 
 ;; Evil mode
 (use-package evil
@@ -120,6 +122,7 @@
   (setq evil-want-keybinding nil)
   (setq evil-want-C-u-scroll t)
   (setq evil-want-C-i-jump nil)
+  ;(setq evil-undo-system 'undo-tree)
   :config
   (evil-mode 1)
   (define-key evil-insert-state-map (kbd "C-g") 'evil-normal-state)
@@ -132,10 +135,41 @@
   (evil-set-initial-state 'message-buffer-mode 'normal)
   (evil-set-initial-state 'dashboard-mode 'normal))
 
+
 (use-package evil-collection
   :after evil
   :config
   (evil-collection-init))
+
+(setq-default bidi-paragraph-direction 'left-to-right)
+
+(if (version<= "27.1" emacs-version)
+    (setq bidi-inhibit-bpa t))
+
+(setq backup-directory-alist `(("." . ,(expand-file-name "tmp/backups/" user-emacs-directory))))
+
+;;(setq make-backup-files nil)
+
+;; auto-save-mode doesn't create the path automatically!
+(make-directory (expand-file-name "tmp/auto-saves/" user-emacs-directory) t)
+
+(setq auto-save-list-file-prefix (expand-file-name "tmp/auto-saves/sessions/"
+                                                   user-emacs-directory)
+      auto-save-file-name-transforms `((".*" ,(expand-file-name "tmp/auto-saves"
+                                                                user-emacs-directory) t)))
+
+;; (setq create-lockfiles nil)
+
+;; NOTE: If you want to move everything out of the ~/.emacs.d folder
+;; reliably, set `user-emacs-directory` before loading no-littering!
+;(setq user-emacs-directory "~/.cache/emacs")
+
+(use-package no-littering)
+
+;; no-littering doesn't set this by default so we must place
+;; auto save files in the same path as it uses for sessions
+(setq auto-save-file-name-transforms
+      `((".*" ,(no-littering-expand-var-file-name "auto-save/") t)))
 
 ;No use currently
 ;(use-package command-log-mode)
@@ -155,9 +189,8 @@
   :defer t
   :init (which-key-mode)
   :diminish which-key-mode
-  ;:config (setq which-key-idle-delay
 
-  ; Setting to 300ms to hopefully decrease CPU usage
+  ;; Setting to 300ms to hopefully decrease CPU usage
   :config
   (setq which-key-idle-delay 300))
 
@@ -189,23 +222,37 @@
 
 (use-package counsel
   :bind (("M-x" . counsel-M-x)
-         ("C-x b" . counsel-switch-buffer)
-         ;("C-x b" . counsel-ibuffer)
+         ("C-M-j" . counsel-switch-buffer)
+         ("C-x b" . counsel-ibuffer)
          ("C-x C-f" . counsel-find-file)
          :map minibuffer-local-map
          ("C-r" . 'counsel-minibuffer-history))
-  :custom (counsel-linux-app-format-function #'counsel-linux-app-format-function-name-only)
+  :custom (counsel-linux-app-format-function #'counsel-linux-app-format-function-name-pretty)
   :config
   (counsel-mode 1))
 
 (use-package ivy-prescient
   :after counsel ivy
   :custom
-  (ivy-prescient-enable-filtering nil)
+  ;; If below set to nil, then ivy-prescient.el does not apply prescient.el filtering to Ivy, but will still sort.
+  (ivy-prescient-enable-filtering t)
+
+  ;; Ivy prescient changes how the results are highlighted. To emulate old highlighting you can set this to true.
+  (ivy-prescient-retain-classic-highlighting t)
+
+  (prescient-filter-method '(literal regexp anchored))
   :config
   ;; Uncomment the following line to have sorting remembered across sessions!
-  ;(prescient-persist-mode 1)
+  (prescient-persist-mode 1)
   (ivy-prescient-mode 1))
+
+(use-package company-prescient
+  :after company
+  :custom
+  ;; Do not sort after length of the candidate
+  (company-prescient-sort-length-enable nil)
+  :config
+  (company-prescient-mode 1))
 
 (use-package key-chord
   :after evil
@@ -246,6 +293,17 @@
 
     (pretty-activate-groups
       '(:sub-and-superscripts :greek :arithmetic-nary)))
+
+(use-package async
+  :ensure t
+  :custom
+  ;; Compile all packages asynchronously
+  (async-bytecomp-allowed-packages 'all)
+  :config
+  ;; This will allow you to run asynchronously the dired commands for copying, renaming and symlinking. If you are a helm user, this will allow you to copy, rename etc... asynchronously from helm. Note that with helm you can disable this by running the copy, rename etc... commands with a prefix argument.
+  (dired-async-mode 1)
+  ;; Compile packages asynchronously
+  (async-bytecomp-package-mode 1))
 
 (defun linas/org-mode-setup ()
     (org-indent-mode)
@@ -291,8 +349,8 @@
   (setq org-log-done 'time)
   (setq org-log-into-drawer t)
 
-  (setq org-agenda-files '("~/my_emacs_config/tasks.org"
-                           "~/Projects/curls.monster/tasks.org"))
+  (setq org-agenda-files '("~/org/Tasks.org"
+                           "~/org/Mail.org"))
   (setq org-todo-keywords
     '((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d!)")
       (sequence "BACKLOG(b)" "PLAN(p)" "READY(r)" "ACTIVE(a)" "REVIEW(v)" "WAIT(w@/!)" "HOLD(h)" "|" "COMPLETED(c)" "CANC(k@)")))
@@ -379,8 +437,9 @@
 
 ;; Automatically tangle our Emacs.org config file when we save it
 (defun linas/org-babel-tangle-config ()
-  (when (string-equal (buffer-file-name)
-                      (expand-file-name "~/my_emacs_config/Emacs.org"))
+
+ (when (string-equal (file-name-directory (buffer-file-name))
+                      (expand-file-name "~/Projects/super-emacs-config/"))
 
     ;; Dynamic scoping to the rescue
     (let ((org-confirm-babel-evaluate nil))
@@ -611,6 +670,13 @@
 
 (use-package treemacs-magit
   :after (treemacs magit))
+
+(use-package auth-source
+  :defer t
+  :custom 
+  (auth-source-pass-filename "~/.password-store/"))
+
+(use-package pass)
 
 ;; Make gc pauses faster by decresing the threshold
 (setq gc-cons-threshold (* 2 1000 1000))
