@@ -180,6 +180,7 @@
 
 *** Evil mode
 #+begin_src emacs-lisp
+
   ;; Evil mode
   (use-package evil
     :init
@@ -200,10 +201,10 @@
     (evil-set-initial-state 'message-buffer-mode 'normal)
     (evil-set-initial-state 'dashboard-mode 'normal))
 
-
   (use-package evil-collection
+    :ensure t
     :after evil
-    :config
+    :init
     (evil-collection-init))
 
 #+end_src
@@ -423,20 +424,7 @@ Prescient also has an extension for Company mode to provide sorting based on fre
 
 #+end_src
 
-** Key-chord
-
-Configured Key-Chord to map "jj" to go to normal mode from insert mode.
-#+begin_src emacs-lisp
-
-  (use-package key-chord
-    :after evil
-    :config
-    (key-chord-mode 1)
-    (key-chord-define evil-insert-state-map "jj" 'evil-normal-state))
-
-#+end_src 
-
-** Helpful
+*** Helpful
 
 Helpful package for better help features.
 #+begin_src emacs-lisp
@@ -901,9 +889,6 @@ A Git interface.
     ;; Might want to comment out custom later
     :commands magit-status
     :custom (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
-
-  ;; (use-package evil-magit
-  ;;   :after magit)
 
   (use-package forge
     :after magit)

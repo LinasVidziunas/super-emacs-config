@@ -8,9 +8,6 @@ setxkbmap -option "ctrl:nocaps"
 # Startup picom
 picom &
 
-# 
-(setxkbmap -query | grep -q "layout:\s\+us") && setxkbmap no || setxkbmap us
-
 # Resotring previous wallpaper
 # Not needed in the launcher script. Launching at exwm startup
 # nitrogen --restore &

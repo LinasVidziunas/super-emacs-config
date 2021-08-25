@@ -135,10 +135,10 @@
   (evil-set-initial-state 'message-buffer-mode 'normal)
   (evil-set-initial-state 'dashboard-mode 'normal))
 
-
 (use-package evil-collection
+  :ensure t
   :after evil
-  :config
+  :init
   (evil-collection-init))
 
 (setq-default bidi-paragraph-direction 'left-to-right)
@@ -253,12 +253,6 @@
   (company-prescient-sort-length-enable nil)
   :config
   (company-prescient-mode 1))
-
-(use-package key-chord
-  :after evil
-  :config
-  (key-chord-mode 1)
-  (key-chord-define evil-insert-state-map "jj" 'evil-normal-state))
 
 (use-package helpful
   :commands (helpful-callable helpful-variable helpful-command helpful-key)
@@ -553,9 +547,6 @@
   ;; Might want to comment out custom later
   :commands magit-status
   :custom (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
-
-;; (use-package evil-magit
-;;   :after magit)
 
 (use-package forge
   :after magit)
