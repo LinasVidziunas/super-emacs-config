@@ -1,5 +1,3 @@
-;; (The default iisplay-startup-time)
-
 ;; Initialize package sources
 (require 'package)
 

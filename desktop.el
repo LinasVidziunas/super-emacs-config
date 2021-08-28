@@ -10,7 +10,13 @@
 
 (use-package desktop-environment
   :after exwm
-  :config (desktop-environment-mode)
+  :config
+
+  ;; Rebinding dekstop-environment-lock-screen form s-l to s-L for integration with windowmove keybinds
+  (define-key desktop-environment-mode-map (kbd "S-l") nil)
+  (define-key desktop-environment-mode-map (kbd "s-L>") #'desktop-environment-lock-screen)
+
+  (desktop-environment-mode)
   :custom
   ;; Brightness increments and decrements
   (desktop-environment-brightness-small-increment "1%+")
@@ -95,7 +101,6 @@
 
   ;;Launch apps that will run in the background
   (linas/run-in-background "nm-applet")
-  ;; (linas/run-in-background "pavucontrol")
   (linas/run-in-background "pasystray")
   (linas/run-in-background "blueman-applet")
   (linas/run-in-background "dunst"))
@@ -153,7 +158,6 @@
   ;; Automatically move EXWM buffer to current workspace when slected
   ;; exwm-switch-to-buffer 
   ;; (setq exwm-layout-show-all-buffers t)
-
 
   ;; Display all EXWM buffers in every workspace buffer list
   ;; (setq exwm-workspace-show-all-buffers t) 
@@ -214,7 +218,7 @@
                        (start-process-shell-command command nil command)))
 
           ;; Switch workspace
-          ([?\s-w] . exwm-workspace-switch)
+          ;;([?\s-w] . exwm-workspace-switch)
 
           ;; 's-N': Switch to certain workspace with Super (Win) plus a number key (0 - 9)
           ,@(mapcar (lambda (i)

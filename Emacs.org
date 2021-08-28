@@ -1,13 +1,6 @@
 #+title Linas' Emacs Configuration
 #+PROPERTY: header-args:emacs-lisp :tangle ./init.el
 
-* Startup Performace
-
-#+begin_src emacs-lisp
-  ;; (The default iisplay-startup-time)
-
-#+end_src
-
 * Package System Setup
 
 #+begin_src emacs-lisp

@@ -18,4 +18,4 @@ xss-lock -- slock &
 # Fire it up
 # -mm - maximize window
 # --debug-init - as init.el is loading if hit any errors drop into the debugger
-exec dbus-launch --exit-with-session emacs -mm --debug-init -l ~/Projects/super-emacs-econfig/desktop.el
+exec dbus-launch --exit-with-session emacs -mm --debug-init -l ~/.emacs.d/desktop.el
