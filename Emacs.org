@@ -489,6 +489,22 @@ For doing asynchronous processing in Emacs
 #+end_src
 
 * Org Mode
+** *Prerequisites*
+*** Latex preview in org mode
+
+Run latex previews in org with  ~C-c C-x C-l~
+
+- tex
+- dvipng
+
+  On void install by:
+
+#+begin_src shell
+
+  sudo xbps-install tex texlive-dvi
+
+#+end_src
+
 ** Org Mode Configuration
 *** Mode setup
 

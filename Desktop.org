@@ -1,8 +1,43 @@
 #+title: Linas' Emacs Desktop Configuration
 #+PROPERTY: header-args:emacs-lisp :tangle ./desktop.el
 
+* Prerequisites
+
+In this section I summarize what needs to be installed so Emacs can work flawlessly.
+
+These programs are being run in the desktop environment section:
+
+** Desktop Enviroment Prerequisites
+
+- xset
+- setxkbmap
+
+- picom
+- nitrogen
+
+- xss-lock
+- slock
+
+- brightnessctl for controlling the brightness
+- playerctl
+- scrot for screenshots
+
+- polybar
+
+- dunst
+- dunstctl
+
+** Desktop Applications
+
+(Not necesarry, only helpfull if you want an email client, and a well intregrated browser for your EXWM)
+
+- mu (install it or delete it's code from desktop applications section)
+- qutebrowser
+
 * Desktop Enviroment
-** Desktop File
+** Desktop File *Only if using login manager*
+
+*Only used by a login manager, if no login manager do not tangle*
 
 This file is used by yout "login manager" (GDM, LightDM, etc) to display EXWM as a desktop enviroment option when you log in.
 
@@ -27,6 +62,8 @@ DesktopNames=exwm
 #+end_src
 
 ** Launcher Script
+
+If not using a login manager you can directly tangle to ~~/.xinitrc~
 
 #+begin_src sh :tangle ./exwm/start-exwm.sh :shebang #!/bin/sh
 
@@ -152,10 +189,18 @@ Using slock and xss-lock. Added to startup file.
 - xss-lock
 - slock
   
-Void linux (xbps):
+Void Linux (xbps):
 #+begin_src sh
 
   sudo xbps-install slock xss-lock
+
+#+end_src
+
+Arch Linux:
+
+#+begin_src shell
+
+  sudo pacman -S slock xss-lock
 
 #+end_src
 
@@ -176,6 +221,15 @@ Void Linux:
   sudo xbps-install polybar
 
 #+end_src
+
+Arch: Use yay to install. or just clone git
+
+#+begin_src sh
+
+  yay -S polybar-git
+
+#+end_src
+
 
 Also install some icon fonts:
 
