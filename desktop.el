@@ -1,10 +1,3 @@
-;; (setq display-time-format "%a %d/%m/%y %H:%M")
-;; (setq display-time-day-and-date t) ; Display day and day
-;; (display-time-mode 1)        ; Also display the time
-;; (setq display-time-24hr-format t) ; Display time as 24H
-
-;; (display-battery-mode 1)    ; Display battery mode ( very useful for laptop) huyaptop
-
 (set-frame-parameter (selected-frame) 'fullscreen 'maximized)
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
 
@@ -13,8 +6,8 @@
   :config
 
   ;; Rebinding dekstop-environment-lock-screen form s-l to s-L for integration with windowmove keybinds
-  (define-key desktop-environment-mode-map (kbd "S-l") nil)
-  (define-key desktop-environment-mode-map (kbd "s-L>") #'desktop-environment-lock-screen)
+  (define-key desktop-environment-mode-map (kbd "s-l") nil)
+  (define-key desktop-environment-mode-map (kbd "s-L") #'desktop-environment-lock-screen)
 
   (desktop-environment-mode)
   :custom
@@ -29,9 +22,6 @@
   (desktop-environment-volume-small-decrement "1%-")
   (desktop-environment-volume-normal-increment "5%+")
   (desktop-environment-volume-normal-decrement "5%-"))
-
-;; Make sure the server is started (better to do this in your main Emacs config!)
-(server-start)
 
 (defvar linas/polybar-process nil
   "Holds the process of the running Polybar instance, if any")
@@ -59,9 +49,6 @@
 (defun linas/dunstctl (command)
   (start-process-shell-command "dunstctl" nil (concat "dunstctl " command)))
 
-(exwm-input-set-key (kbd "s-n") (lambda () (interactive) (linas/dunstctl "history-pop")))
-(exwm-input-set-key (kbd "s-N") (lambda () (interactive) (linas/dunstctl "close-all")))
-
 (defun linas/desktop-notifications-enable ()
   (interactive)
   (linas/dunstctl "set-paused false"))
@@ -73,9 +60,6 @@
 (defun linas/desktop-notifications-toggle ()
   (interactive)
   (linas/dunstctl "set-paused toggle"))
-
-;; (notifications-notify :title "From Emacs"
-;; :body "This is an notification sent from Emacs!")
 
 (defun linas/switch-keyboard-layout (to_layout)
   "Function to switch between keyboard layouts"
@@ -231,6 +215,10 @@
   (exwm-input-set-key (kbd "s-SPC") 'counsel-linux-app)
   (exwm-input-set-key (kbd "s-f") 'exwm-layout-toggle-fullscreen)
 
+  (exwm-input-set-key (kbd "s-n") (lambda () (interactive) (linas/dunstctl "history-pop")))
+  (exwm-input-set-key (kbd "s-N") (lambda () (interactive) (linas/dunstctl "close-all")))
+
+
   (exwm-enable))
 
 (defun linas/lookup-password (&rest keys)
@@ -243,7 +231,7 @@
 (setq epg-pinentry-mode 'loopback)
 
 (use-package mu4e
-  :ensure nil
+  :straight nil
   :load-path "/usr/share/emacs/site-lisp/mu4e/"
   :defer 10 ; Wait until 10 seconds after startup
   :config
@@ -409,7 +397,6 @@
 
 (use-package org-mime
   :after mu4e
-  :ensure t
   :custom
   (org-mime-export-options '(:section-numbers nil
                                               :with-author nil
