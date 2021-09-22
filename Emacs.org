@@ -167,6 +167,7 @@
 #+end_src
 
 *** Evil mode
+
 #+begin_src emacs-lisp
 
   ;; Evil mode
@@ -176,7 +177,8 @@
     (setq evil-want-keybinding nil)
     (setq evil-want-C-u-scroll t)
     (setq evil-want-C-i-jump nil)
-    ;(setq evil-undo-system 'undo-tree)
+    :custom
+    (evil-undo-system 'undo-fu)
     :config
     (evil-mode 1)
     (define-key evil-insert-state-map (kbd "C-g") 'evil-normal-state)
@@ -473,7 +475,8 @@ Helpful package for better help features.
 
 ** Shackle
 
-Enforce rules for popup windows. Shacke giver you the means to put an end to popped up buffers not behaving the way you'd like them to.
+Enforce rules for popup windows.
+Shacke gives you the means to put an end to popped up buffers not behaving the way you'd like them to.
 
 #+begin_src emacs-lisp
 
@@ -481,10 +484,38 @@ Enforce rules for popup windows. Shacke giver you the means to put an end to pop
   ;;   :custom
   ;;   (shackle-rules
   ;;    '((help-mode :noselect t)
+  ;;      (helpful-mode :noselect t)
+  ;;      (magit-mode :noselect t)
   ;;      ))
   ;;   (shackle-default-rule '(:same t))
   ;;   :config
   ;;   (shackle-mode 1))
+
+#+end_src
+
+** Undo Fu with session
+*** [[https://github.com/emacsmirror/undo-fu][undo-fu]]
+
+Simple, stable linear undo with redo.
+Wrapper for Emacs built-in undo system, adding convenient undo/redo without losing access to the full undo history, allowing you to visit all previous states of the document if you need.
+
+#+begin_src emacs-lisp
+
+  (use-package undo-fu)
+
+#+end_src
+
+*** [[https://gitlab.com/ideasman42/emacs-undo-fu-session][undo-fu-session]]
+
+Intended for use with undo-fu, as a way to save and restore undo sessions, even after restarting Emacs.
+
+#+begin_src emacs-lisp
+
+  (use-package undo-fu-session
+    :custom
+    (undo-fu-session-incompatible-files '("/COMMIT_EDITMSG\\'" "/git-rebase-todo\\'"))
+    :config
+    (global-undo-fu-session-mode))
 
 #+end_src
 
@@ -950,7 +981,6 @@ Dial the GC threshold back down so that garbage collection happens more frequent
   (setq gc-cons-threshold (* 2 1000 1000))
 
 #+end_src
-
 
 * Loading Development.el
 

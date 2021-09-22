@@ -112,7 +112,8 @@
   (setq evil-want-keybinding nil)
   (setq evil-want-C-u-scroll t)
   (setq evil-want-C-i-jump nil)
-  ;(setq evil-undo-system 'undo-tree)
+  :custom
+  (evil-undo-system 'undo-fu)
   :config
   (evil-mode 1)
   (define-key evil-insert-state-map (kbd "C-g") 'evil-normal-state)
@@ -288,10 +289,20 @@
 ;;   :custom
 ;;   (shackle-rules
 ;;    '((help-mode :noselect t)
+;;      (helpful-mode :noselect t)
+;;      (magit-mode :noselect t)
 ;;      ))
 ;;   (shackle-default-rule '(:same t))
 ;;   :config
 ;;   (shackle-mode 1))
+
+(use-package undo-fu)
+
+(use-package undo-fu-session
+  :custom
+  (undo-fu-session-incompatible-files '("/COMMIT_EDITMSG\\'" "/git-rebase-todo\\'"))
+  :config
+  (global-undo-fu-session-mode))
 
 (use-package async
   :custom
