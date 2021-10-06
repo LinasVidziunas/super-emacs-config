@@ -165,7 +165,14 @@
 ;(use-package command-log-mode)
 
 (use-package doom-themes
-  :init (load-theme 'doom-gruvbox t)) ;; Doom themes
+  :init (load-theme 'doom-gruvbox t) 
+  :custom
+  (doom-themes-enable-bold t)
+  (doom-themes-enable-italic t)
+  (doom-themes-treemacs-theme "doom-atom")
+  :config
+  (doom-themes-treemacs-config)
+  (doom-themes-org-config))
 
 (use-package all-the-icons
   :init
