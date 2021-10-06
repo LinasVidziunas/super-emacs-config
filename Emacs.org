@@ -519,6 +519,18 @@ Intended for use with undo-fu, as a way to save and restore undo sessions, even 
 
 #+end_src
 
+** Solaire-mode
+
+Solaire-mode is an aesthetic plugin designed to visually distinguish "real" buffers (i.e. file-visiting code buffers where you do most of your work) from "unreal" buffers (like popups, sidebars, log buffers, terminals, etc) by giving the latter a slightly different -- often darker -- background
+
+#+begin_src  emacs-lisp
+
+  (use-package solaire-mode
+    :config
+    (solaire-global-mode +1))
+
+#+end_src
+
 * Async
 
 For doing asynchronous processing in Emacs

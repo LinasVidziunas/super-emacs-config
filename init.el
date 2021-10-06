@@ -304,6 +304,10 @@
   :config
   (global-undo-fu-session-mode))
 
+(use-package solaire-mode
+  :config
+  (solaire-global-mode +1))
+
 (use-package async
   :custom
   ;; Compile all packages asynchronously
