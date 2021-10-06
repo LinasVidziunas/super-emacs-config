@@ -33,7 +33,7 @@ These programs are being run in the desktop environment section:
 
 - mu (install it or delete it's code from desktop applications section)
 - qutebrowser
-
+  
 * Desktop Enviroment
 ** Desktop File *Only if using login manager*
 

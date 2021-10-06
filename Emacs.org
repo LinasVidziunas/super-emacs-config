@@ -130,6 +130,7 @@
 #+end_src
 
 ** Keybinding Configuration
+
 #+begin_src emacs-lisp
 
   ;; Make ESC quit prompts
@@ -138,6 +139,7 @@
 #+end_src
 
 *** General
+
 #+begin_src emacs-lisp
   (use-package general
     :after evil
@@ -265,11 +267,12 @@ Unfortunately these can't be moved, but they can be disabled:
 Not recommended setting this across the whole configuration but it can be useful in certain projects where these files cause trouble. Use directory-local variables for this!
 
 ** Littering
+
 #+begin_src emacs-lisp
 
   ;; NOTE: If you want to move everything out of the ~/.emacs.d folder
   ;; reliably, set `user-emacs-directory` before loading no-littering!
-  ;(setq user-emacs-directory "~/.cache/emacs")
+  ;; (setq user-emacs-directory "~/.cache/emacs")
 
   (use-package no-littering)
 
@@ -398,7 +401,6 @@ Improcved Candidate Sorting with Precient
 
     (prescient-filter-method '(literal regexp anchored))
     :config
-    ;; Uncomment the following line to have sorting remembered across sessions!
     (prescient-persist-mode 1)
     (ivy-prescient-mode 1))
 
@@ -407,6 +409,7 @@ Improcved Candidate Sorting with Precient
 *** Company Prescient
 
 Prescient also has an extension for Company mode to provide sorting based on frequency:
+
 #+begin_src emacs-lisp
 
   (use-package company-prescient
