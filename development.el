@@ -66,9 +66,11 @@
   :hook (prog-mode . rainbow-delimiters-mode)) ;; For all programming modes
 
 (use-package emmet-mode
-  :hook
-  (sgml-mode-hook . emmet-mode) ;; Auto-start on any markup modes
-  (css.mode-hook . emmet-mode)) ;; enable Emmet's css abbreviation.
+  :config
+  (add-hook 'web-mode-hook 'emmet-mode)
+  (add-hook 'sgml-mode-hook 'emmet-mode)
+  (add-hook 'html-mode-hook 'emmet-mode)
+  (add-hook 'css-mode-hook 'emmet-mode))
 
 ;; Maybe change to pyri some other day
 (use-package python-mode
