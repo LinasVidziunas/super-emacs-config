@@ -22,7 +22,11 @@ Very useful! Comment out with alt-/
   (use-package lsp-mode
     :commands (lsp lsp-deferred)
     :hook (lsp-mode . linas/lsp-mode-setup)
-    :init (setq lsp-keymap-prefix "C-c l") ; Or 'C-l', 's-l'
+    :init
+    (setq lsp-keymap-prefix "C-c l") ; Or 'C-l', 's-l'
+    (setq read-process-output-max (* 1024 1024))
+    :custom
+    (lsp-idle-delay 0.750)
     :config (lsp-enable-which-key-integration t))
 
   (use-package lsp-ui

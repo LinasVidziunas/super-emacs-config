@@ -552,9 +552,6 @@
 
 (use-package pass)
 
-;; Make gc pauses faster by decresing the threshold
-(setq gc-cons-threshold (* 2 1000 1000))
-
 (if (file-exists-p "~/.emacs.d/development.el")
     (load-file "~/.emacs.d/development.el")
   (message "Development packages not loading. development.el file not found in the emacs directory"))
@@ -562,3 +559,6 @@
 (if (file-exists-p "~/.emacs.d/shells.el")
     (load-file "~/.emacs.d/shells.el")
   (message "Shells packages not loading. shells.el file not found in the emacs directory"))
+
+;; Make gc pauses faster by decresing the threshold
+(setq gc-cons-threshold (* 100 1000 1000))

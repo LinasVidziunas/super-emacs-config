@@ -971,17 +971,6 @@ So pass can find the encrypted password file
 
 #+end_src
 
-* Runtime Performance
-
-Dial the GC threshold back down so that garbage collection happens more frequently but in less time.
-
-#+begin_src emacs-lisp
-
-  ;; Make gc pauses faster by decresing the threshold
-  (setq gc-cons-threshold (* 2 1000 1000))
-
-#+end_src
-
 * Loading Development.el
 
 Loading development.el where packages related to development reside
@@ -1006,4 +995,14 @@ Loading development.el where packages related to development reside
 
 #+end_src
 
+* Runtime Performance
+
+Dial the GC threshold back down so that garbage collection happens more frequently but in less time.
+
+#+begin_src emacs-lisp
+
+  ;; Make gc pauses faster by decresing the threshold
+  (setq gc-cons-threshold (* 100 1000 1000))
+
+#+end_src
 
