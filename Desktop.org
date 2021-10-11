@@ -20,15 +20,25 @@
 - polybar
 
 - dunst
-- dunstctl
+- dunstctl (in Gentoo a part of dunst)
+  
+*** On Gentoo
+
+Enable ipc flag on Polybar to use polybar-msg.
+
+#+begin_src sh
+
+  doas emerge -qa xset setxkbmap picom nitrogen xss-lock slock polybar dunst mu pass qutebrowser
+
+#+end_src
 
 ** Desktop Applications
 
-(Not necesarry, only helpfull if you want an email client, and a well intregrated browser for your EXWM)
+(Not necesarry, only helpful if you want an email client, and a well intregrated browser for your EXWM)
 
 - mu (install it or delete it's code from desktop applications section)
 - qutebrowser
-  
+
 * Desktop Enviroment
 ** Desktop File *Only if using login manager*
 
@@ -61,6 +71,8 @@ DesktopNames=exwm
 If not using a login manager you can directly tangle to ~~/.xinitrc~
 
 #+begin_src sh :tangle ./exwm/start-exwm.sh :shebang #!/bin/sh
+  # Set default cursor
+  xsetroot -cursor_name left_ptr
 
   # Setting faster typing
   xset r rate 200 75
@@ -170,8 +182,16 @@ Ubuntu (apt):
 
 #+end_src
 
+Gentoo:
+#+begin_src sh
+
+  doas emerge slock xss-lock
+
+#+end_src
+
 ** Polybar
 *** Installation
+**** Void Linux
 
 Void Linux:
 
@@ -181,6 +201,7 @@ Void Linux:
 
 #+end_src
 
+**** Arch Linux
 Arch: Use yay to install. or just clone git
 
 #+begin_src sh
@@ -189,6 +210,15 @@ Arch: Use yay to install. or just clone git
 
 #+end_src
 
+**** Gentoo
+
+#+begin_src sh
+
+  doas emerge -qa polybar
+
+#+end_src
+
+**** Fonts
 
 Also install some icon fonts:
 
@@ -362,6 +392,7 @@ Void Linux:
 
 *** Polybar functions
 **** Kill panel
+     
 #+begin_src emacs-lisp
 
   (defun linas/kill-panel ()
@@ -373,6 +404,7 @@ Void Linux:
 #+end_src
 
 **** Start panel
+
 #+begin_src emacs-lisp
 
   (defun linas/start-panel ()
@@ -383,6 +415,7 @@ Void Linux:
 #+end_src
 
 **** Send Polybar hook
+
 #+begin_src emacs-lisp
 
   (defun linas/send-polybar-hook (module-name hook-index)
@@ -391,6 +424,7 @@ Void Linux:
 #+end_src
 
 **** Send Polybar EXWM workspace
+
 #+begin_src emacs-lisp
 
   (defun linas/send-polybar-exwm-workspace ()
@@ -399,6 +433,7 @@ Void Linux:
 #+end_src
 
 *** Hooking Emacs to Polybar
+
 #+begin_src emacs-lisp
 
   ;; Update panel indicator when workspace changes
@@ -409,9 +444,11 @@ Void Linux:
 ** Desktop Notifications with Dunst
 
 *Dependencies*
-  - Dunst
+- Dunst
+- dunstctl (comes with dunst from version 1.5.0)
 
 *** Installation
+
 Void Linux:
 #+begin_src sh
 
@@ -420,6 +457,7 @@ Void Linux:
 #+end_src
 
 *** Dunst configuration
+
 #+begin_src conf :tangle ~/.config/dunst/dunstrc :mkdirp yes
 
   [global]

@@ -39,10 +39,6 @@
           eshell-hist-ignoredups t
           eshell-scroll-to-bottom-on-input t))
 
-  ;; Powerline makes it look cooler
-  (use-package eshell-git-prompt
-    :after eshell)
-
   (use-package eshell
     :hook (eshell-first-time-mode . linas/configure-eshell)
     :config
@@ -53,11 +49,29 @@
 
 #+end_src
 
-* vterm
+** Banner information (fanciness)
 
 #+begin_src emacs-lisp
 
-  ;; Not using anymore
+  (use-package eshell-info-banner
+    :after eshell
+    :straight (:build t)
+    :hook (eshell-banner-load . eshell-info-banner-update-banner))
+
+#+end_src
+
+** Powerline
+#+begin_src emacs-lisp
+
+  ;; Powerline makes it look cooler
+  (use-package eshell-git-prompt
+    :after eshell)
+
+#+end_src
+
+* vterm
+
+#+begin_src emacs-lisp
 
   (use-package vterm
     :commands vterm
@@ -97,7 +111,7 @@ https://github.com/kyagi/shell-pop-el
   (use-package shell-pop
     ;; :bind ("C-c s" . shell-pop)
     :custom
-    (shell-pop-default-directory "~/")
+    (shell-pop-default-directory nil) ; cd to the current directory
     (shell-pop-shell-type (quote ("ansi-term" "*ansi-term*" (lambda nil (ansi-term shell-pop-term-shell)))))
     (shell-pop-term-shell "zsh")
     (shell-pop-universal-key "C-c s")

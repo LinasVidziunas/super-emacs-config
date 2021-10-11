@@ -164,7 +164,7 @@
       `((".*" ,(no-littering-expand-var-file-name "auto-save/") t)))
 
 (use-package doom-themes
-  :init (load-theme 'doom-gruvbox t) 
+  :init (load-theme 'doom-henna t)
   :custom
   (doom-themes-enable-bold t)
   (doom-themes-enable-italic t)
@@ -181,17 +181,17 @@
   (all-the-icons-scale-factor 1))
 
 (use-package doom-modeline
-  :init (doom-modeline-mode 1)
-  :custom ((doom-modeline-height 15)))
+  :init
+  (doom-modeline-mode 1)
+  :custom
+  (doom-modeline-height 15))
 
 (use-package which-key
   :defer t
   :init (which-key-mode)
   :diminish which-key-mode
-
-  ;; Setting to 300ms to hopefully decrease CPU usage
-  :config
-  (setq which-key-idle-delay 300))
+  :custom
+  (which-key-idle-delay 0.4))
 
 (use-package vertico
   :bind (:map minibuffer-local-map
@@ -451,19 +451,19 @@
 (defun linas/org-font-setup ()
     ;; Replace list hyphen with dot
     (font-lock-add-keywords 'org-mode
-                            '(("^ *\\([-]\\) "
-                               (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
+			    '(("^ *\\([-]\\) "
+			       (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
 
     ;; Set faces for heading levels
     (dolist (face '((org-level-1 . 1.2)
-                    (org-level-2 . 1.1)
-                    (org-level-3 . 1.05)
-                    (org-level-4 . 1.0)
-                    (org-level-5 . 1.1)
-                    (org-level-6 . 1.1)
-                    (org-level-7 . 1.1)
-                    (org-level-8 . 1.1)))
-      (set-face-attribute (car face) nil :font "Cantarell" :weight 'regular :height (cdr face)))
+		    (org-level-2 . 1.1)
+		    (org-level-3 . 1.05)
+		    (org-level-4 . 1.0)
+		    (org-level-5 . 1.1)
+		    (org-level-6 . 1.1)
+		    (org-level-7 . 1.1)
+		    (org-level-8 . 1.1))))
+      ;;(set-face-attribute (car face) nil :font "Cantarell" :weight 'normal :height (cdr face)))
 
     ;; Ensure that anything that should be fixed-pitch in Org files appears that way
     (set-face-attribute 'org-block nil :foreground nil :inherit 'fixed-pitch)
@@ -479,6 +479,8 @@
   :straight (:type built-in)
   :commands (org-capture org-agenda)
   :hook (org-mode . linas/org-mode-setup)
+  :custom
+  (org-file-tags t)
   :config
   (setq org-ellipsis " ▾") ; ... to the triangle thingy
 
@@ -505,6 +507,7 @@
 
   (setq org-tag-alist
         '((:startgroup)
+          ("Project")
                                         ; Put mutually exclusive tags here
           (:endgroup)
           ("@errand" . ?E)
@@ -585,7 +588,7 @@
   (org-bullets-bullet-list '("◉" "○" "●" "○" "●" "○" "●")))
 
 (defun linas/org-mode-visual-fill ()
-  (setq visual-fill-column-width 100
+  (setq visual-fill-column-width 150
         visual-fill-column-center-text t)
   (visual-fill-column-mode 1))
 
@@ -606,21 +609,34 @@
   :custom
   (org-roam-directory "~/RoamNotes")
   (org-roam-completion-everywhere t)
+  (org-roam-node-display-template
+   (concat "${type:10} ${title:*} " (propertize "${tags:10}" 'face 'org-tag)))
   (org-roam-capture-templates
    '(("d" "default" plain
       "%?"
-      :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n")
+      :if-new (file+head "%<%Y%m%d%H%M>-${slug}.org" "#+title: ${title}\n")
+      :immediate-finish t
       :unnarrowed t)
-     ("c" "chemistry" plain (file "~/RoamNotes/Templates/ChemestryStudyNotes.org")
-      :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n")
+     ("s" "school" plain
+      "%?"
+      :if-new (file+head "School/%<%Y%m%d%H%M>-${slug}.org" "#+title: ${title}\n")
+      :immediate-finish t
       :unnarrowed t)))
-   :bind (("C-c n l" . org-roam-buffer-toggle)
-          ("C-c n f" . org-roam-node-find)
-          ("C-c n i" . org-roam-node-insert)
-          :map org-mode-map
-          ("C-M-i"    . completion-at-point))
-   :config
-   (org-roam-setup))
+  :bind (("C-c n l" . org-roam-buffer-toggle)
+         ("C-c n f" . org-roam-node-find)
+         ("C-c n i" . org-roam-node-insert)
+         :map org-mode-map
+         ("C-M-i"    . completion-at-point))
+  :config
+  (cl-defmethod org-roam-node-type ((node org-roam-node))
+    "Return the TYPE of node"
+    (condition-case nil
+        (file-name-nondirectory
+         (directory-file-name
+          (file-name-directory
+           (file-relative-name (org-roam-node-file node) org-roam-directory))))
+      (error "")))
+  (org-roam-setup))
 
 (use-package csv-mode
   :mode "\\.csv\\'"
@@ -702,4 +718,4 @@
   (message "Shells packages not loading. shells.el file not found in the emacs directory"))
 
 ;; Make gc pauses faster by decresing the threshold
-(setq gc-cons-threshold (* 500 1000))
+(setq gc-cons-threshold (* 1000 1000))

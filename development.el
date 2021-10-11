@@ -24,13 +24,17 @@
   (setq lsp-keymap-prefix "C-c l") ; Or 'C-l', 's-l'
   (setq read-process-output-max (* 512 1024))
   :custom
-  (lsp-idle-delay 0.500)
+  (lsp-enable-snippet nil)
+  (lsp-use-plists t)
+  (lsp-idle-delay 0.100)
   :config
   (lsp-enable-which-key-integration t))
 
 (use-package lsp-ui
   :hook (lsp-mode . lsp-ui-mode)
-  :custom (lsp-ui-doc-position 'bottom ))
+  :custom (lsp-ui-doc-position 'bottom )
+  :config
+  (add-hook 'lsp-ui-imenu-mode-hook (lambda() (display-line-numbers-mode 0)))) ;;; No line numbers
 
 (use-package lsp-treemacs
   :after lsp)
@@ -61,11 +65,11 @@
   (company-selection-wrap-around t)
   (company-show-numbers t)
   (company-minimum-prefix-length 2)
-  (company-idle-delay 0.4))
+  (company-idle-delay 0.15))
 
 (use-package company-box
   :hook (company-mode . company-box-mode)
-  :custom(company-box-doc-delay 0.75))
+  :custom (company-box-doc-delay 0.3))
 
 (use-package projectile
   :diminish projectile-mode
@@ -96,12 +100,15 @@
   (add-hook 'html-mode-hook 'emmet-mode)
   (add-hook 'css-mode-hook 'emmet-mode))
 
-;; Maybe change to pyri some other day
-(use-package python-mode
-  :mode "\\.py\\'"
-  :hook (python-mode . lsp-deferred))
+;; ;; Maybe change to pyri some other day
+;; (use-package python-mode
+;;   :mode "\\.py\\'"
+;;   :hook (python-mode . lsp-deferred))
+
+(add-hook 'python-mode-hook #'lsp-deferred)
 
 (use-package lsp-pyright
+  :after (lsp-deferred)
   :hook (python-mode . (lambda ()
                          (require 'lsp-pyright)
                          (lsp-deferred))))

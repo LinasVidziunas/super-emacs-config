@@ -9,7 +9,6 @@
 (use-package eterm-256color
   :hook (term-mode . eterm-256color-mode))
 
-
 (defun linas/configure-eshell ()
   ;; Save command history when commands are entered
   (add-hook 'eshell-pre-command-hook 'eshell-save-some-history)
@@ -27,10 +26,6 @@
         eshell-hist-ignoredups t
         eshell-scroll-to-bottom-on-input t))
 
-;; Powerline makes it look cooler
-(use-package eshell-git-prompt
-  :after eshell)
-
 (use-package eshell
   :hook (eshell-first-time-mode . linas/configure-eshell)
   :config
@@ -39,7 +34,14 @@
     (setq eshell-visual-commands '("htop" "zsh" "vim" "nvim" "nano")))
   (eshell-git-prompt-use-theme 'powerline))
 
-;; Not using anymore
+(use-package eshell-info-banner
+  :after eshell
+  :straight (:build t)
+  :hook (eshell-banner-load . eshell-info-banner-update-banner))
+
+;; Powerline makes it look cooler
+(use-package eshell-git-prompt
+  :after eshell)
 
 (use-package vterm
   :commands vterm
@@ -63,7 +65,7 @@
 (use-package shell-pop
   ;; :bind ("C-c s" . shell-pop)
   :custom
-  (shell-pop-default-directory "~/")
+  (shell-pop-default-directory nil) ; cd to the current directory
   (shell-pop-shell-type (quote ("ansi-term" "*ansi-term*" (lambda nil (ansi-term shell-pop-term-shell)))))
   (shell-pop-term-shell "zsh")
   (shell-pop-universal-key "C-c s")
