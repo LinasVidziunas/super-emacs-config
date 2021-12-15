@@ -2,11 +2,6 @@
 #+PROPERTY: header-args:emacs-lisp :tangle ./desktop.el
 
 * Prerequisites
-
-In this section I summarize what needs to be installed so Emacs can work flawlessly.
-
-These programs are being run in the desktop environment section:
-
 ** Desktop Enviroment Prerequisites
 
 - xset
@@ -881,6 +876,13 @@ Function for switching keyboard layout
 
 * Desktop Applications
 ** Password Encryption
+
+*Living nightmare currently*
+
+For pass to work with firefox on void.
+I installed ~browserpass~ on void and also the ~browserpass~ firefox extenion.
+Also installed ~pinentry-emacs~
+
 *** Authentication Sources
 
 The =auth-source= library looks for passwords in a set of sources configured by the variable =auth-sources.=
