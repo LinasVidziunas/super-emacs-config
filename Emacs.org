@@ -1,7 +1,7 @@
 #+title Linas' Emacs Configuration
 #+PROPERTY: header-args:emacs-lisp :tangle ./init.el
 
-*  Start emacs server
+* Start emacs server
 
 #+begin_src emacs-lisp
 
@@ -142,6 +142,7 @@
 *** General
 
 #+begin_src emacs-lisp
+
   (use-package general
     :after evil
     :config
@@ -173,7 +174,6 @@
 
 #+begin_src emacs-lisp
 
-  ;; Evil mode
   (use-package evil
     :init
     (setq evil-want-integration t)
@@ -285,15 +285,6 @@ Not recommended setting this across the whole configuration but it can be useful
 #+end_src
 
 * UI Configuration
-** Command Log Mode
-
-#+begin_src emacs-lisp
-
-  ;No use currently
-  ;(use-package command-log-mode)
-
-#+end_src
-
 ** Color Theme
 
 #+begin_src emacs-lisp

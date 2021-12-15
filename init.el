@@ -106,7 +106,6 @@
    "xhj" '((lambda () (interactive) (exwm-layout-shrink-window-horizontally 100)) :which-key "shrink +100")
    ))
 
-;; Evil mode
 (use-package evil
   :init
   (setq evil-want-integration t)
@@ -161,9 +160,6 @@
 ;; auto save files in the same path as it uses for sessions
 (setq auto-save-file-name-transforms
       `((".*" ,(no-littering-expand-var-file-name "auto-save/") t)))
-
-;No use currently
-;(use-package command-log-mode)
 
 (use-package doom-themes
   :init (load-theme 'doom-gruvbox t) 
