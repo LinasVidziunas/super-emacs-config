@@ -512,11 +512,11 @@
   :custom ((dired-listing-switches "-agho --group-directories-first"))
   :config
     (evil-collection-define-key 'normal 'dired-mode-map
-      "h" 'dired-up-directory
-      "l" 'dired-find-file))
+      "h" 'dired-single-up-directory
+      "l" 'dired-single-buffer))
 
 (use-package dired-single
-  :after dired)
+  :commands (dired dired-jump))
 
 (use-package all-the-icons-dired
   :hook (dired-mode . all-the-icons-dired-mode))
