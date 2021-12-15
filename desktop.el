@@ -403,3 +403,14 @@
                                               :with-toc nil))
   :config
   (add-hook 'message-send-hook 'org-mime-confirm-when-no-multipart))
+
+(defun linas/proced-settings ()
+  (setq proced-format (list 'pid 'tree 'pcpu 'pmem (list 'args 'comm)))
+  (proced-toggle-tree t)
+  (proced-toggle-auto-update t))
+
+(use-package proced
+  :straight nil
+  :config
+  (setq proced-auto-update-interval 1)
+  (add-hook 'proced-mode-hook 'linas/proced-settings))
