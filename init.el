@@ -50,6 +50,7 @@
                 vterm-mode-hook
                 mu4e-main-mode-hook
                 mu4e-headers-mode-hook
+                proced-mode-hook
                 eshell-mode-hook))
   (add-hook mode (lambda() (display-line-numbers-mode 0))))
 
