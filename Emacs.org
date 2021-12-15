@@ -921,12 +921,13 @@ or:
   (use-package treemacs-projectile
     :after (treemacs projectile))
 
-  (use-package treemacs-icons-dired
-    :after dired
-    :config
-    (treemacs-icons-dired-mode)
-    :custom
-    (treemacs--icon-size 1))
+  ;; causes dired to display icons twice
+  ;; (use-package treemacs-icons-dired
+  ;;   :after dired
+  ;;   :config
+  ;;   (treemacs-icons-dired-mode)
+  ;;   :custom
+  ;;   (treemacs--icon-size 1))
 
   (use-package treemacs-magit
     :after (treemacs magit))
