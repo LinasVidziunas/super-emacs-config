@@ -315,15 +315,15 @@
   :config
   (solaire-global-mode +1))
 
-(use-package async
-  :custom
-  ;; Compile all packages asynchronously
-  (async-bytecomp-allowed-packages 'all)
-  :config
-  ;; This will allow you to run asynchronously the dired commands for copying, renaming and symlinking. If you are a helm user, this will allow you to copy, rename etc... asynchronously from helm. Note that with helm you can disable this by running the copy, rename etc... commands with a prefix argument.
-  (dired-async-mode 1)
-  ;; Compile packages asynchronously
-  (async-bytecomp-package-mode 1))
+;; (use-package async
+;;   :custom
+;;   ;; Compile all packages asynchronously
+;;   (async-bytecomp-allowed-packages 'all)
+;;   :config
+;;   ;; This will allow you to run asynchronously the dired commands for copying, renaming and symlinking. If you are a helm user, this will allow you to copy, rename etc... asynchronously from helm. Note that with helm you can disable this by running the copy, rename etc... commands with a prefix argument.
+;;   (dired-async-mode 1)
+;;   ;; Compile packages asynchronously
+;;   (async-bytecomp-package-mode 1))
 
 (defun linas/org-mode-setup ()
     (org-indent-mode)
