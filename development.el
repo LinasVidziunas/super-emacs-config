@@ -103,12 +103,6 @@
   :mode "\\.cs\\'"
   :config
   (add-hook 'csharp-mode-hook 'lsp-deferred))
-  ;; (add-hook 'csharp-mode-hook 'omnisharp-mode))
-
-;; (use-package omnisharp
-;;   :after company
-;;   :config
-;;   (add-to-list 'company-backends 'company-omnisharp))
 
 (use-package go-mode
   :mode "\\.go\\'"
