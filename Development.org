@@ -72,15 +72,18 @@ Very useful! Comment out with alt-/
     :after lsp-mode
     :hook (prog-mode . company-mode)
     :bind (:map company-active-map
-            ("<tab>" . company-complete-selection))
-          (:map lsp-mode-map
-            ("<tab>" . company-indent-or-complete-common))
+                ("<tab>" . company-complete-selection)
+                :map lsp-mode-map
+                ("<tab>" . company-indent-or-complete-common))
     :custom
-    (company-minimum-prefix-length 1)
-    (company-idle-delay 0.0))
+    (company-selection-wrap-around t)
+    (company-show-numbers t)
+    (company-minimum-prefix-length 2)
+    (company-idle-delay 0.4))
 
   (use-package company-box
-    :hook (company-mode . company-box-mode))
+    :hook (company-mode . company-box-mode)
+    :custom(company-box-doc-delay 0.75))
 
 #+end_src
 
