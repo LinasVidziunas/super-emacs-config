@@ -394,17 +394,6 @@ folder, otherwise delete a character backward"
 (linas/leader-keys
   "ts" '(hydra-text-scale/body :which-key "scale text"))
 
-(use-package pretty-mode
-  :hook (prog-mode . pretty-mode) ;; For all programming modes
-  :config
-    (pretty-deactivate-groups
-      '(:equality :ordering :ordering-double :ordering-triple
-        :arrows :arrows-twoheaded :punctuation
-        :logic :sets))
-
-    (pretty-activate-groups
-      '(:sub-and-superscripts :greek :arithmetic-nary)))
-
 ;; (use-package shackle
 ;;   :custom
 ;;   (shackle-rules
