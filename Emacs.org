@@ -222,6 +222,7 @@ Whilst this is a great feature, it adds to the amount of line scans Emacs has to
 ** Backup Files
 
 - Emacs.org~
+
 #+begin_src emacs-lisp
 
   (setq backup-directory-alist `(("." . ,(expand-file-name "tmp/backups/" user-emacs-directory))))
@@ -229,6 +230,7 @@ Whilst this is a great feature, it adds to the amount of line scans Emacs has to
 #+end_src
 
 You can also turn off this behaviour entirely:
+
 #+begin_src emacs-lisp
 
   ;;(setq make-backup-files nil)
@@ -609,6 +611,7 @@ Shacke gives you the means to put an end to popped up buffers not behaving the w
 #+end_src
 
 ** Undo Fu with session
+
 *** [[https://github.com/emacsmirror/undo-fu][undo-fu]]
 
 Simple, stable linear undo with redo.

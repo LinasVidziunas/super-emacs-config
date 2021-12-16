@@ -70,7 +70,7 @@
   :after magit)
 
 (use-package rainbow-delimiters
-  :hook (prog-mode . rainbow-delimiters-mode)) ;; For all programming modes
+  :hook (prog-mode . rainbow-delimiters-mode))
 
 (use-package emmet-mode
   :config

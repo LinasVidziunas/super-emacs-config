@@ -1565,6 +1565,7 @@ Giving usergroup permission to write and read:
   sudo chmod g+wr /usr/lib/python3.9/site-packages/tldextract/
 
 #+end_src
+
 * Viewing and managing system resources with Proced
 
 #+begin_src emacs-lisp

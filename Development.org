@@ -1,4 +1,4 @@
-#+title Linas' Emacs Configuration
+#+title: Linas' Emacs Configuration
 #+PROPERTY: header-args:emacs-lisp :tangle ./development.el
 
 * Pretty mode
@@ -32,6 +32,7 @@ Very useful! Comment out with alt-/
 * Language Server
 
 #+begin_src emacs-lisp
+
   (defun linas/lsp-mode-setup ()
     (setq lsp-headerline-breadcrumb-segments '(path-up-to-project file symbols))
     (lsp-headerline-breadcrumb-mode))
@@ -129,7 +130,7 @@ Colorizes nested parantheses.
 #+begin_src emacs-lisp
 
   (use-package rainbow-delimiters
-    :hook (prog-mode . rainbow-delimiters-mode)) ;; For all programming modes
+    :hook (prog-mode . rainbow-delimiters-mode))
 
 #+end_src
 
@@ -231,3 +232,4 @@ Colorizes nested parantheses.
   (setq org-confirm-babel-evaluate nil)
 
 #+end_src
+
