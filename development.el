@@ -106,7 +106,7 @@
 
 (use-package go-mode
   :mode "\\.go\\'"
-  :hook (go-mode-hook . lsp-deferred))
+  :hook (go-mode . lsp-deferred))
 
 (with-eval-after-load 'org
   (org-babel-do-load-languages

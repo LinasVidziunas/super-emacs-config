@@ -7,6 +7,7 @@
 (use-package eterm-256color
   :hook (term-mode . eterm-256color-mode))
 
+
 (defun linas/configure-eshell ()
   ;; Save command history when commands are entered
   (add-hook 'eshell-pre-command-hook 'eshell-save-some-history)

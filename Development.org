@@ -208,7 +208,7 @@ Colorizes nested parantheses.
 
   (use-package go-mode
     :mode "\\.go\\'"
-    :hook (go-mode-hook . lsp-deferred))
+    :hook (go-mode . lsp-deferred))
 
 #+end_src
 
