@@ -212,12 +212,11 @@
                           (exwm-workspace-switch-create ,i))))
                     (number-sequence 0 9))))
 
-  (exwm-input-set-key (kbd "s-SPC") 'counsel-linux-app)
+  ;; (exwm-input-set-key (kbd "s-SPC") 'counsel-linux-app)
   (exwm-input-set-key (kbd "s-f") 'exwm-layout-toggle-fullscreen)
 
   (exwm-input-set-key (kbd "s-n") (lambda () (interactive) (linas/dunstctl "history-pop")))
   (exwm-input-set-key (kbd "s-N") (lambda () (interactive) (linas/dunstctl "close-all")))
-
 
   (exwm-enable))
 

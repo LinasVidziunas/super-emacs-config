@@ -91,7 +91,7 @@
 
   (linas/leader-keys
    "t" '(:ignore t :which-key "toggles")
-   "tt" '(counsel-load-theme :which-key "choose theme")
+   "tt" '(load-theme :which-key "choose theme")
 
    "o" '(:ignore t :which-key "open")
    "op" '(treemacs :which-key "Treemacs")
@@ -191,79 +191,196 @@
   :config
   (setq which-key-idle-delay 300))
 
-(use-package counsel
-  :bind (("M-x" . counsel-M-x)
-         ("C-M-j" . counsel-switch-buffer)
-         ("C-s-j" . counsel-switch-buffer)
-         ("C-x b" . counsel-ibuffer)
-         ("C-x C-f" . counsel-find-file)
-         :map minibuffer-local-map
-         ("C-r" . 'counsel-minibuffer-history))
-  :custom (counsel-linux-app-format-function #'counsel-linux-app-format-function-name-pretty)
-  :config
-  (counsel-mode 1))
+(defun dw/minibuffer-backward-kill (arg)
+  "When minibuffer is completing a file name delete up to parent
+folder, otherwise delete a character backward"
+  (interactive "p")
+  (if minibuffer-completing-file-name
+      ;; Borrowed from https://github.com/raxod502/selectrum/issues/498#issuecomment-803283608
+      (if (string-match-p "/." (minibuffer-contents))
+          (zap-up-to-char (- arg) ?/)
+        (delete-minibuffer-contents))
+      (delete-backward-char arg)))
 
-(use-package ivy
-  :after counsel
-  :diminish
-  :bind (("C-s" . swiper)
-         :map ivy-minibuffer-map
-         ("TAB" . ivy-alt-done)
-         ("C-l" . ivy-alt-done)
-         ("C-j" . ivy-next-line)
-         ("C-k" . ivy-previous-line)
-         :map ivy-switch-buffer-map
-         ("C-k" . ivy-previous-line)
-         ("C-l" . ivy-done)
-         ("C-d" . ivy-switch-buffer-kill)
-         :map ivy-reverse-i-search-map
-         ("C-k" . ivy-previous-line)
-         ("C-d" . ivy-reverse-i-search-kill))
-  :config
-  (ivy-mode 1))
+  (use-package vertico
+    :bind (:map minibuffer-local-map
+           ("C-j" . vertico-next)
+           ("C-k" . vertico-previous)
+           :map minibuffer-local-map
+           ("<backspace>" . dw/minibuffer-backward-kill))
+    :custom
+    (vertico-cycle t)
+    :init
+    (vertico-mode))
 
-(use-package ivy-rich
-  :after ivy
-  :init (ivy-rich-mode 1))
-
-;; Might not need, just looking for icons tbh
-(use-package all-the-icons-ivy
-  :after ivy
-  :init (add-hook 'after-init-hook 'all-the-icons-ivy-setup))
-
-(use-package ivy-prescient
-  :after counsel ivy
+(use-package marginalia
+  :after vertico
+  :bind(:map minibuffer-local-map
+             ("M-A" . marginalia-cycle))
   :custom
-  ;; If below set to nil, then ivy-prescient.el does not apply prescient.el filtering to Ivy, but will still sort.
-  (ivy-prescient-enable-filtering t)
+  (marginalia-annotators '(marginalia-annotators-heavy marginalia-annotators-light nil))
+  :init (marginalia-mode))
 
-  ;; Ivy prescient changes how the results are highlighted. To emulate old highlighting you can set this to true.
-  (ivy-prescient-retain-classic-highlighting t)
+(use-package orderless
+  :init
+  (setq completion-styles '(orderless)
+        completion-category-defaults nil
+        completion-category-overrides '((file (styles partial-completion)))))
 
-  (prescient-filter-method '(literal regexp anchored))
+(use-package consult
+  ;; Replace bindings. Lazily loaded due by `use-package'.
+  :bind (
+         ;; C-c bindings (mode-specific-map)
+         ("C-c h" . consult-history)
+         ("C-c m" . consult-mode-command)
+         ("C-c b" . consult-bookmark)
+         ("C-c k" . consult-kmacro)
+
+         ;; C-x bindings (ctl-x-map)
+         ("C-x M-:" . consult-complex-command)     ;; orig. repeat-complex-command
+         ("C-x b" . consult-buffer)                ;; orig. switch-to-buffer
+         ("C-M-j" . consult-buffer)                ;; orig. switch-to-buffer
+         ("C-x 4 b" . consult-buffer-other-window) ;; orig. switch-to-buffer-other-window
+         ("C-x 5 b" . consult-buffer-other-frame)  ;; orig. switch-to-buffer-other-frame
+
+         ;; Custom M-# bindings for fast register access
+         ("M-#" . consult-register-load)
+         ("M-'" . consult-register-store)          ;; orig. abbrev-prefix-mark (unrelated)
+         ("C-M-#" . consult-register)
+
+         ;; Other custom bindings
+         ("M-y" . consult-yank-pop)                ;; orig. yank-pop
+         ("<help> a" . consult-apropos)            ;; orig. apropos-command
+
+         ;; M-g bindings (goto-map)
+         ("M-g e" . consult-compile-error)
+         ("M-g f" . consult-flymake)               ;; Alternative: consult-flycheck
+         ("M-g g" . consult-goto-line)             ;; orig. goto-line
+         ("M-g M-g" . consult-goto-line)           ;; orig. goto-line
+         ("M-g o" . consult-outline)               ;; Alternative: consult-org-heading
+         ("M-g m" . consult-mark)
+         ("M-g k" . consult-global-mark)
+         ("M-g i" . consult-imenu)
+         ("M-g I" . consult-imenu-multi)
+
+         ;; M-s bindings (search-map)
+         ("M-s f" . consult-find)
+         ("M-s F" . consult-locate)
+         ("M-s g" . consult-grep)
+         ("M-s G" . consult-git-grep)
+         ("M-s r" . consult-ripgrep)
+         ("M-s l" . consult-line)
+         ("M-s L" . consult-line-multi)
+         ("M-s m" . consult-multi-occur)
+         ("M-s k" . consult-keep-lines)
+         ("M-s u" . consult-focus-lines)
+
+         ;; Isearch integration
+         ("M-s e" . consult-isearch-history)
+
+         :map isearch-mode-map
+         ("M-e" . consult-isearch-history)         ;; orig. isearch-edit-string
+         ("M-s e" . consult-isearch-history)       ;; orig. isearch-edit-string
+         ("M-s l" . consult-line)                  ;; needed by consult-line to detect isearch
+         ("M-s L" . consult-line-multi))           ;; needed by consult-line to detect isearch
+
+  ;; Enable automatic preview at point in the *Completions* buffer. This is
+  ;; relevant when you use the default completion UI. You may want to also
+  ;; enable `consult-preview-at-point-mode` in Embark Collect buffers.
+  :hook (completion-list-mode . consult-preview-at-point-mode)
+
+  ;; The :init configuration is always executed (Not lazy)
+  :init
+
+  ;; Optionally configure the register formatting. This improves the register
+  ;; preview for `consult-register', `consult-register-load',
+  ;; `consult-register-store' and the Emacs built-ins.
+  (setq register-preview-delay 0
+        register-preview-function #'consult-register-format)
+
+  ;; Optionally tweak the register preview window.
+  ;; This adds thin lines, sorting and hides the mode line of the window.
+  (advice-add #'register-preview :override #'consult-register-window)
+
+  ;; Optionally replace `completing-read-multiple' with an enhanced version.
+  (advice-add #'completing-read-multiple :override #'consult-completing-read-multiple)
+
+  ;; Use Consult to select xref locations with preview
+  (setq xref-show-xrefs-function #'consult-xref
+        xref-show-definitions-function #'consult-xref)
+
+  ;; Configure other variables and modes in the :config section,
+  ;; after lazily loading the package.
   :config
-  (prescient-persist-mode 1)
-  (ivy-prescient-mode 1))
+
+  ;; Optionally configure preview. The default value
+  ;; is 'any, such that any key triggers the preview.
+  ;; (setq consult-preview-key 'any)
+  ;; (setq consult-preview-key (kbd "M-."))
+  ;; (setq consult-preview-key (list (kbd "<S-down>") (kbd "<S-up>")))
+  ;; For some commands and buffer sources it is useful to configure the
+  ;; :preview-key on a per-command basis using the `consult-customize' macro.
+  (consult-customize
+   consult-theme
+   :preview-key '(:debounce 0.2 any)
+   consult-ripgrep consult-git-grep consult-grep
+   consult-bookmark consult-recent-file consult-xref
+   consult--source-recent-file consult--source-project-recent-file consult--source-bookmark
+   :preview-key (kbd "M-."))
+
+  ;; Optionally configure the narrowing key.
+  ;; Both < and C-+ work reasonably well.
+  (setq consult-narrow-key "<") ;; (kbd "C-+")
+
+  ;; Optionally make narrowing help available in the minibuffer.
+  ;; You may want to use `embark-prefix-help-command' or which-key instead.
+  ;; (define-key consult-narrow-map (vconcat consult-narrow-key "?") #'consult-narrow-help)
+
+  ;; Optionally configure a function which returns the project root directory.
+  ;; There are multiple reasonable alternatives to chose from.
+  ;;;; 1. project.el (project-roots)
+  (setq consult-project-root-function
+        (lambda ()
+          (when-let (project (project-current))
+            (car (project-roots project)))))
+  ;;;; 2. projectile.el (projectile-project-root)
+  ;; (autoload 'projectile-project-root "projectile")
+  ;; (setq consult-project-root-function #'projectile-project-root)
+  ;;;; 3. vc.el (vc-root-dir)
+  ;; (setq consult-project-root-function #'vc-root-dir)
+  ;;;; 4. locate-dominating-file
+  ;; (setq consult-project-root-function (lambda () (locate-dominating-file "." ".git")))
+  )
 
 (use-package company-prescient
   :after company
   :custom
-  ;; Do not sort after length of the candidate
-  (company-prescient-sort-length-enable nil)
+  ;; Do sort after length of the candidate
+  (company-prescient-sort-length-enable t)
   :config
   (company-prescient-mode 1))
 
 (use-package helpful
-  :after counsel
-  :commands (helpful-callable helpful-variable helpful-command helpful-key)
-  :custom
-  (counsel-describe-function-function #'helpful-callable)
-  (counsel-describe-variable-function #'helpful-variable)
   :bind
-  ([remap describe-function] . counsel-describe-function)
-  ([remap describe-command] . helpful-command)
-  ([remap describe-variable] . counsel-describe-variable)
-  ([remap describe-key] . helpful-key))
+  ("C-h f" . helpful-callable)
+  ("C-h v" . helpful-variable)
+  ("C-h k" . helpful-key)
+
+  ;; Lookup the current symbol at point. C-c C-d is a common keybinding
+  ;; for this in lisp modes.
+  ("C-c C-d" . helpful-at-point)
+
+  ;; By default, C-h F is bound to `Info-goto-emacs-command-node'. Helpful
+  ;; already links to the manual, if a function is referenced there.
+  ("C-h F" . helpful-function)
+
+  ;; By default, C-h C is bound to describe `describe-coding-system'. I
+  ;; don't find this very useful, but it's frequently useful to only
+  ;; look at interactive functions.
+  ("C-h C" . helpful-command)
+  :after vertico
+  :commands (helpful-callable helpful-function helpful-variable helpful-at-point helpful-command helpful-key)
+  :custom (helpful-max-buffers 1))
 
 (use-package hydra
   :defer t)
