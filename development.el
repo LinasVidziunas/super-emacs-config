@@ -131,4 +131,8 @@
 ;; Don't ask if you are sure to evaluate
 (setq org-confirm-babel-evaluate nil)
 
-(use-package flycheck)
+(use-package flycheck
+  :init
+  (global-flycheck-mode))
+
+(use-package multiple-cursors)

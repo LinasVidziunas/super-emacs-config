@@ -243,3 +243,22 @@ Colorizes nested parantheses.
 
 #+end_src
 
+* Flycheck
+For reporting errors and suggesting fixes.
+
+#+begin_src emacs-lisp
+
+  (use-package flycheck
+    :init
+    (global-flycheck-mode))
+
+#+end_src
+
+* Multiple cursors
+For easier editing.
+
+#+begin_src emacs-lisp
+
+  (use-package multiple-cursors)
+
+#+end_src
