@@ -673,6 +673,15 @@ Function for switching keyboard layout
 
 #+end_src
 
+** Launching apps with NCLA
+
+#+begin_src emacs-lisp
+
+  (use-package ncla
+    :straight '(NCLA :host github :repo "LinasVidziunas/NCLA"))
+
+#+end_src
+
 * Window Management
 ** EXWM Functions
 *** Run in background
@@ -865,7 +874,7 @@ Function for switching keyboard layout
                             (exwm-workspace-switch-create ,i))))
                       (number-sequence 0 9))))
 
-    ;; (exwm-input-set-key (kbd "s-SPC") 'counsel-linux-app)
+    (exwm-input-set-key (kbd "s-SPC") 'ncla)
     (exwm-input-set-key (kbd "s-f") 'exwm-layout-toggle-fullscreen)
 
     (exwm-input-set-key (kbd "s-n") (lambda () (interactive) (linas/dunstctl "history-pop")))

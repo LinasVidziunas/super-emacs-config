@@ -72,6 +72,9 @@
 (defun linas/get-keyboard-layout ()
   (interactive))
 
+(use-package ncla
+  :straight '(NCLA :host github :repo "LinasVidziunas/NCLA"))
+
 (defun linas/run-in-background (command)
   (let ((command-parts (split-string command "[ ]+")))
     (apply #'call-process `(,(car command-parts) nil 0 nil ,@(cdr command-parts)))))
@@ -212,7 +215,7 @@
                           (exwm-workspace-switch-create ,i))))
                     (number-sequence 0 9))))
 
-  ;; (exwm-input-set-key (kbd "s-SPC") 'counsel-linux-app)
+  (exwm-input-set-key (kbd "s-SPC") 'ncla)
   (exwm-input-set-key (kbd "s-f") 'exwm-layout-toggle-fullscreen)
 
   (exwm-input-set-key (kbd "s-n") (lambda () (interactive) (linas/dunstctl "history-pop")))

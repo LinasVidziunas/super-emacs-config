@@ -191,27 +191,15 @@
   :config
   (setq which-key-idle-delay 300))
 
-(defun dw/minibuffer-backward-kill (arg)
-  "When minibuffer is completing a file name delete up to parent
-folder, otherwise delete a character backward"
-  (interactive "p")
-  (if minibuffer-completing-file-name
-      ;; Borrowed from https://github.com/raxod502/selectrum/issues/498#issuecomment-803283608
-      (if (string-match-p "/." (minibuffer-contents))
-          (zap-up-to-char (- arg) ?/)
-        (delete-minibuffer-contents))
-      (delete-backward-char arg)))
-
-  (use-package vertico
-    :bind (:map minibuffer-local-map
-           ("C-j" . vertico-next)
-           ("C-k" . vertico-previous)
-           :map minibuffer-local-map
-           ("<backspace>" . dw/minibuffer-backward-kill))
-    :custom
-    (vertico-cycle t)
-    :init
-    (vertico-mode))
+(use-package vertico
+  :bind (:map minibuffer-local-map
+              ("C-j" . vertico-next)
+              ("C-k" . vertico-previous)
+              :map minibuffer-local-map)
+  :custom
+  (vertico-cycle t)
+  :init
+  (vertico-mode))
 
 (use-package marginalia
   :after vertico
