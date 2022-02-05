@@ -1,5 +1,7 @@
 (use-package term
   :commands term
+  :custom
+  (term-buffer-maximum-size 3000)
   :config
   (setq explicit-shell-file-name "bash")
   (setq explicit-zsh-args '()))
@@ -39,12 +41,12 @@
 
 ;; Not using anymore
 
-;; (use-package vterm
-;;   :commands vterm
-;;   :config
-;;   (setq term-prompt-regexp "^[^#$%>\n]*[#$%>] *")
-;;   (setq vterm-shell "zsh")
-;;   (setq vterm-max-scrollback 3000)) ;; Default 10000, set to 3000 in case of lag
+(use-package vterm
+  :commands vterm
+  :config
+  (setq term-prompt-regexp "^[^#$%>\n]*[#$%>] *")
+  (setq vterm-shell "bash")
+  (setq vterm-max-scrollback 1000)) ;; Default 10000, set to 1000 in case of lag
 
 (setq comint-output-filter-functions
       (remove 'ansi-color-process-output comint-output-filter-functions))
@@ -68,6 +70,6 @@
   (shell-pop-window-size 25)
   (shell-pop-full-span t)
   (shell-pop-window-positioning "bottom")
-  (shepp-pop-autocd-to-working-dir t)
+  (shell-pop-autocd-to-working-dir t)
   (shell-pop-restore-window-configuration t)
   (shell-pop-cleanup-buffer-at-process-exit t))

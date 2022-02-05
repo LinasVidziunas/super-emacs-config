@@ -53,7 +53,7 @@
 
 #+end_src
 
-* vterm (disabled)
+* vterm
 
 #+begin_src emacs-lisp
 
