@@ -1,6 +1,14 @@
 #+title Linas' Emacs Configuration
 #+PROPERTY: header-args:emacs-lisp :tangle ./init.el
 
+* Startup Performance
+
+#+begin_src emacs-lisp
+
+  (setq gc-cons-threshold (* 10 1000 1000))
+
+#+end_src
+
 * Start emacs server
 
 #+begin_src emacs-lisp
@@ -1104,7 +1112,6 @@ Dial the GC threshold back down so that garbage collection happens more frequent
 #+begin_src emacs-lisp
 
   ;; Make gc pauses faster by decresing the threshold
-  (setq gc-cons-threshold (* 100 1000 1000))
+  (setq gc-cons-threshold (* 500 1000))
 
 #+end_src
-

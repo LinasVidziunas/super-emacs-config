@@ -1,3 +1,5 @@
+(setq gc-cons-threshold (* 10 1000 1000))
+
 (server-start)
 
 (defvar bootstrap-version)
@@ -653,4 +655,4 @@
   (message "Shells packages not loading. shells.el file not found in the emacs directory"))
 
 ;; Make gc pauses faster by decresing the threshold
-(setq gc-cons-threshold (* 100 1000 1000))
+(setq gc-cons-threshold (* 500 1000))
