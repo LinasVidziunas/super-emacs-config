@@ -152,6 +152,10 @@ Colorizes nested parantheses.
 
 #+begin_src emacs-lisp
 
+  (use-package elpy
+    :init
+    (elpy-enable))
+
   ;; Maybe change to pyri some other day
   (use-package python-mode
     :mode "\\.py\\'"

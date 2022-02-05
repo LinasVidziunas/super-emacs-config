@@ -79,6 +79,10 @@
   (add-hook 'html-mode-hook 'emmet-mode)
   (add-hook 'css-mode-hook 'emmet-mode))
 
+(use-package elpy
+  :init
+  (elpy-enable))
+
 ;; Maybe change to pyri some other day
 (use-package python-mode
   :mode "\\.py\\'"

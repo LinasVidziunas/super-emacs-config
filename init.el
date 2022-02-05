@@ -342,6 +342,41 @@
   ;; (setq consult-project-root-function (lambda () (locate-dominating-file "." ".git")))
   )
 
+(use-package consult-lsp
+  :after consult lsp)
+
+(use-package consult-projectile
+  :straight (consult-projectile
+             :type git
+             :host gitlab
+             :repo "OlMon/consult-projectile"
+             :branch "master"))
+
+(use-package embark
+  :bind
+  (("C-." . embark-act)         ;; pick some comfortable binding
+   ("M-." . embark-act)
+   ("C-;" . embark-dwim)        ;; good alternative: M-.
+   ("C-h B" . embark-bindings)) ;; alternative for `describe-bindings'
+  :init
+  ;; Optionally replace the key help with a completing-read interface
+  (setq prefix-help-command #'embark-prefix-help-command)
+  :config
+  ;; Hide the mode line of the Embark live/completions buffers
+  (add-to-list 'display-buffer-alist
+               '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
+                 nil
+                 (window-parameters (mode-line-format . none)))))
+
+;; Consult users will also want the embark-consult package.
+(use-package embark-consult
+  :after (embark consult)
+  :demand t ; only necessary if you have the hook below
+  ;; if you want to have consult previews as you move around an
+  ;; auto-updating embark collect buffer
+  :hook
+  (embark-collect-mode . consult-preview-at-point-mode))
+
 (use-package company-prescient
   :after company
   :custom
@@ -586,6 +621,18 @@
           ("C-M-i"    . completion-at-point))
    :config
    (org-roam-setup))
+
+(use-package csv-mode
+  :mode "\\.csv\\'"
+  :hook
+  (csv-mode . (lambda ()
+                 (csv-align-mode t)
+                 (toggle-truncate-lines 1)
+                 (csv-header-line t))))
+
+(use-package tramp
+  :straight (:type built-in)
+  :custom (tramp-default-method "ssh"))
 
 (use-package dired
   :straight (:type built-in)
