@@ -46,8 +46,8 @@
 
 #+begin_src emacs-lisp
 
-  (defvar linas/default-font-size 120)
-  (defvar linas/default-variable-font-size 120)
+  (defvar linas/default-font-size 100)
+  (defvar linas/default-variable-font-size 100)
   (defvar linas/frame-transparency '(90 . 90))
 
   (setq inhibit-startup-message t)

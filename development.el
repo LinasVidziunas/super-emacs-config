@@ -88,6 +88,12 @@
   :mode "\\.py\\'"
   :hook (python-mode . lsp-deferred))
 
+(use-package lsp-pyright
+  :ensure t
+  :hook (python-mode . (lambda ()
+                         (require 'lsp-pyright)
+                         (lsp-deferred))))  ; or lsp-deferred
+
 ;; (use-package typescript-mode
 ;;   :mode "\\.ts\\'"
 ;;   :hook (typescript-mode . lsp-deferred)
@@ -124,3 +130,5 @@
 
 ;; Don't ask if you are sure to evaluate
 (setq org-confirm-babel-evaluate nil)
+
+(use-package flycheck)

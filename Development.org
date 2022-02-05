@@ -161,6 +161,12 @@ Colorizes nested parantheses.
     :mode "\\.py\\'"
     :hook (python-mode . lsp-deferred))
 
+  (use-package lsp-pyright
+    :ensure t
+    :hook (python-mode . (lambda ()
+                           (require 'lsp-pyright)
+                           (lsp-deferred))))  ; or lsp-deferred
+
 #+end_src
 
 ** Typescript
