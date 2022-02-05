@@ -103,19 +103,27 @@
       (substring exwm-title 0 (string-match-p " — Mozilla Firefox\\'" exwm-title))
     exwm-title))
 
-;; Not finished, maninly cuz im retarded
-;; (defun linas/exwm-update-title-firefox ()
-;;   (interactive)
-;; (message (length (linas/exwm-update-title-firefox-remove-double-name)))
-;;   (if (> (length linas/exwm-update-title-firefox-remove-double-name) 60)
-;;       (concat (substring exwm-title 0 60) "...")
-;;     (linas/exwm-update-title-firefox-remove-double-name)))
+(defun linas/exwm-update-title-qutebrowser-remove-double-name ()
+  (if (string-match-p " - qutebrowser\\'" exwm-title)
+    (substring exwm-title 0 (string-match-p " - qutebrowser\\'" exwm-title))
+  exwm-title))
+
+   ;; Not finished, maninly cuz im retarded
+   ;; (defun linas/exwm-update-title-firefox ()
+   ;;   (interactive)
+   ;; (message (length (linas/exwm-update-title-firefox-remove-double-name)))
+   ;;   (if (> (length linas/exwm-update-title-firefox-remove-double-name) 60)
+   ;;       (concat (substring exwm-title 0 60) "...")
+   ;;     (linas/exwm-update-title-firefox-remove-double-name)))
 
 (defun linas/exwm-update-title ()
   (pcase exwm-class-name
     ("Firefox"
      (exwm-workspace-rename-buffer
-      (format "Firefox: %s" (linas/exwm-update-title-firefox-remove-double-name))))))
+      (format "Firefox: %s" (linas/exwm-update-title-firefox-remove-double-name))))
+    ("qutebrowser"
+     (exwm-workspace-rename-buffer
+      (format "Qutebrowser: %s" (linas/exwm-update-title-qutebrowser-remove-double-name))))))
 
 (defun linas/configure-window-by-class ()
   (interactive)
