@@ -21,9 +21,9 @@
   :hook (lsp-mode . linas/lsp-mode-setup)
   :init
   (setq lsp-keymap-prefix "C-c l") ; Or 'C-l', 's-l'
-  (setq read-process-output-max (* 1024 1024))
+  (setq read-process-output-max (* 512 1024))
   :custom
-  (lsp-idle-delay 0.750)
+  (lsp-idle-delay 0.500)
   :config (lsp-enable-which-key-integration t))
 
 (use-package lsp-ui
