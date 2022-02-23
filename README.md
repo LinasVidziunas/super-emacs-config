@@ -1,7 +1,8 @@
 # super-emacs-config
-Emacs config in org babel
+Emacs configuration with exwm! For any use!
 
-Credits: systemcrafters, basically a copy
+# Credits
+systemcrafters for "Emacs From Scratch"
 
-# Goals
-1) Add some sort of automated quality checks
+# Issues
+Files issues in the Github issues.

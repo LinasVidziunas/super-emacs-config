@@ -1,5 +1,16 @@
+(use-package pretty-mode
+  :hook (prog-mode . pretty-mode) ;; For all programming modes
+  :config
+    (pretty-deactivate-groups
+      '(:equality :ordering :ordering-double :ordering-triple
+        :arrows :arrows-twoheaded :punctuation
+        :logic :sets))
+
+    (pretty-activate-groups
+      '(:sub-and-superscripts :greek :arithmetic-nary)))
+
 (use-package evil-nerd-commenter
-   :bind ("M-/" . evilnc-comment-or-uncomment-lines))
+  :bind ("M-/" . evilnc-comment-or-uncomment-lines))
 
 (defun linas/lsp-mode-setup ()
   (setq lsp-headerline-breadcrumb-segments '(path-up-to-project file symbols))
@@ -7,13 +18,15 @@
 
 (use-package lsp-mode
   :commands (lsp lsp-deferred)
-  :hook (lsp-mode . linas/lsp-mode-setup)
+  :hook
+  (lsp-mode . linas/lsp-mode-setup)
   :init
   (setq lsp-keymap-prefix "C-c l") ; Or 'C-l', 's-l'
-  (setq read-process-output-max (* 1024 1024))
+  (setq read-process-output-max (* 512 1024))
   :custom
-  (lsp-idle-delay 0.750)
-  :config (lsp-enable-which-key-integration t))
+  (lsp-idle-delay 0.500)
+  :config
+  (lsp-enable-which-key-integration t))
 
 (use-package lsp-ui
   :hook (lsp-mode . lsp-ui-mode)
@@ -22,37 +35,48 @@
 (use-package lsp-treemacs
   :after lsp)
 
-(use-package lsp-ivy
-  :after lsp)
+(use-package dap-mode
+  :hook (python-mode . dap-mode)
+  :custom
+  (dap-auto-configure-features '(sessions locals breakpoints expressions controls tooltip))
+  (dap-python-terminal "")
+  :commands (dap-mode)
+  :config
+  (require 'dap-python)
+  (require 'dap-hydra)
+
+  ;; automatically trigger the hydra when the program
+  ;; hits a breakpoint by using the following code.
+  (add-hook 'dap-stopped-hook
+            (lambda (arg) (call-interactively #'dap-hydra))))
 
 (use-package company
   :after lsp-mode
   :hook (prog-mode . company-mode)
   :bind (:map company-active-map
-          ("<tab>" . company-complete-selection))
-        (:map lsp-mode-map
-          ("<tab>" . company-indent-or-complete-common))
+              ("<tab>" . company-complete-selection)
+              :map lsp-mode-map
+              ("<tab>" . company-indent-or-complete-common))
   :custom
-  (company-minimum-prefix-length 1)
-  (company-idle-delay 0.0))
+  (company-selection-wrap-around t)
+  (company-show-numbers t)
+  (company-minimum-prefix-length 2)
+  (company-idle-delay 0.4))
 
 (use-package company-box
-  :hook (company-mode . company-box-mode))
+  :hook (company-mode . company-box-mode)
+  :custom(company-box-doc-delay 0.75))
 
 (use-package projectile
   :diminish projectile-mode
   :config (projectile-mode)
-  :custom ((projectile-completion-system 'ivy))
+  ;; :custom ((projectile-completion-system 'ivy))
   :bind-keymap
   ("C-c p" . projectile-command-map)
   :init
   (when (file-directory-p "~/Projects")
     (setq projectile-project-search-path '("~/Projects")))
   (setq projectile-switch-project-action #'projectile-dired))
-
-(use-package counsel-projectile
-  :after projectile
-  :config (counsel-projectile-mode))
 
 (use-package magit
   ;; Might want to comment out custom later
@@ -63,7 +87,7 @@
   :after magit)
 
 (use-package rainbow-delimiters
-  :hook (prog-mode . rainbow-delimiters-mode)) ;; For all programming modes
+  :hook (prog-mode . rainbow-delimiters-mode))
 
 (use-package emmet-mode
   :config
@@ -76,6 +100,11 @@
 (use-package python-mode
   :mode "\\.py\\'"
   :hook (python-mode . lsp-deferred))
+
+(use-package lsp-pyright
+  :hook (python-mode . (lambda ()
+                         (require 'lsp-pyright)
+                         (lsp-deferred))))
 
 ;; (use-package typescript-mode
 ;;   :mode "\\.ts\\'"
@@ -99,16 +128,10 @@
   :mode "\\.cs\\'"
   :config
   (add-hook 'csharp-mode-hook 'lsp-deferred))
-  ;; (add-hook 'csharp-mode-hook 'omnisharp-mode))
-
-;; (use-package omnisharp
-;;   :after company
-;;   :config
-;;   (add-to-list 'company-backends 'company-omnisharp))
 
 (use-package go-mode
   :mode "\\.go\\'"
-  :hook (go-mode-hook . lsp-deferred))
+  :hook (go-mode . lsp-deferred))
 
 (with-eval-after-load 'org
   (org-babel-do-load-languages
@@ -119,3 +142,9 @@
 
 ;; Don't ask if you are sure to evaluate
 (setq org-confirm-babel-evaluate nil)
+
+(use-package flycheck
+  :init
+  (global-flycheck-mode))
+
+(use-package multiple-cursors)
