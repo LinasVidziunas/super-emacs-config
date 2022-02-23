@@ -10,7 +10,7 @@
       '(:sub-and-superscripts :greek :arithmetic-nary)))
 
 (use-package evil-nerd-commenter
-   :bind ("M-/" . evilnc-comment-or-uncomment-lines))
+  :bind ("M-/" . evilnc-comment-or-uncomment-lines))
 
 (defun linas/lsp-mode-setup ()
   (setq lsp-headerline-breadcrumb-segments '(path-up-to-project file symbols))
@@ -18,13 +18,15 @@
 
 (use-package lsp-mode
   :commands (lsp lsp-deferred)
-  :hook (lsp-mode . linas/lsp-mode-setup)
+  :hook
+  (lsp-mode . linas/lsp-mode-setup)
   :init
   (setq lsp-keymap-prefix "C-c l") ; Or 'C-l', 's-l'
   (setq read-process-output-max (* 512 1024))
   :custom
   (lsp-idle-delay 0.500)
-  :config (lsp-enable-which-key-integration t))
+  :config
+  (lsp-enable-which-key-integration t))
 
 (use-package lsp-ui
   :hook (lsp-mode . lsp-ui-mode)
@@ -100,10 +102,9 @@
   :hook (python-mode . lsp-deferred))
 
 (use-package lsp-pyright
-  :ensure t
   :hook (python-mode . (lambda ()
                          (require 'lsp-pyright)
-                         (lsp-deferred))))  ; or lsp-deferred
+                         (lsp-deferred))))
 
 ;; (use-package typescript-mode
 ;;   :mode "\\.ts\\'"

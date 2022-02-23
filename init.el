@@ -476,9 +476,9 @@
     (setq evil-auto-indent nil)) ; might need to take out this later
 
 (use-package org
+  :straight (:type built-in)
   :commands (org-capture org-agenda)
   :hook (org-mode . linas/org-mode-setup)
-  :straight (:type built-in)
   :config
   (setq org-ellipsis " ▾") ; ... to the triangle thingy
 

@@ -699,7 +699,8 @@ Solaire-mode is an aesthetic plugin designed to visually distinguish "real" buff
 
 #+end_src
 
-* Org Mode
+* Org
+** Org Mode
 ** *Prerequisites*
 *** Latex preview in org mode
 
@@ -777,9 +778,9 @@ To be able to convert .tex files into pdfs
 #+begin_src emacs-lisp
 
   (use-package org
+    :straight (:type built-in)
     :commands (org-capture org-agenda)
     :hook (org-mode . linas/org-mode-setup)
-    :straight (:type built-in)
     :config
     (setq org-ellipsis " ▾") ; ... to the triangle thingy
   
@@ -927,7 +928,7 @@ To be able to convert .tex files into pdfs
 
 #+end_src
 
-* Org Roam
+** Org Roam
 ** Prerequisites
 
 *Prerequisites*
