@@ -58,12 +58,24 @@ Very useful! Comment out with alt-/
 
 * Debugging with dap-mode
 
-# #+begin_src emacs-lisp
+#+begin_src emacs-lisp
 
-#   (use-package dap-mode
-#     :commands dap-mode)
+  (use-package dap-mode
+    :hook (python-mode . dap-mode)
+    :custom
+    (dap-auto-configure-features '(sessions locals breakpoints expressions controls tooltip))
+    (dap-python-terminal "")
+    :commands (dap-mode)
+    :config
+    (require 'dap-python)
+    (require 'dap-hydra)
 
-# #+end_src
+    ;; automatically trigger the hydra when the program
+    ;; hits a breakpoint by using the following code.
+    (add-hook 'dap-stopped-hook
+              (lambda (arg) (call-interactively #'dap-hydra))))
+
+#+end_src
 
 * Company Mode
 

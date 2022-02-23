@@ -33,6 +33,21 @@
 (use-package lsp-treemacs
   :after lsp)
 
+(use-package dap-mode
+  :hook (python-mode . dap-mode)
+  :custom
+  (dap-auto-configure-features '(sessions locals breakpoints expressions controls tooltip))
+  (dap-python-terminal "")
+  :commands (dap-mode)
+  :config
+  (require 'dap-python)
+  (require 'dap-hydra)
+
+  ;; automatically trigger the hydra when the program
+  ;; hits a breakpoint by using the following code.
+  (add-hook 'dap-stopped-hook
+            (lambda (arg) (call-interactively #'dap-hydra))))
+
 (use-package company
   :after lsp-mode
   :hook (prog-mode . company-mode)
