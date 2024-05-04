@@ -1,44 +1,71 @@
 ;;; config.el --- User configuration for Neatmacs -*- lexical-binding: t; -*-
 
 ;;; Commentary:
-;; Loading modules, and other user-written code
-;; 
+;;
+;; Author: Linas Vidziunas <linasvidz@gmail.com>
+;; Maintainer: Linas Vidziunas <linasvidz@gmail.com>
+;;
+;; Loading Neatmacs modules,
+;; and user-written code.
+;;
 ;;; Code:
 
-;;; Add Modules to load path
-(add-to-list 'load-path (expand-file-name "Modules/" user-emacs-directory))
-(add-to-list 'load-path (expand-file-name "Modules/Applications" user-emacs-directory))
-(add-to-list 'load-path (expand-file-name "Modules/Development" user-emacs-directory))
 
-;;; Modules
+(defun neatmacs-require (module)
+  "Require MODULE, and time the loading."
+  (let ((start-time (current-time)))
+    (require module)
+    (message "Loaded %s in %.3fs" module (float-time (time-since start-time)))))
 
-(require 'neat-defaults)                ; Recomended to enable
-(require 'neat-completion)              ; A full-fledged completion configuration
-(require 'neat-file-management)
-(require 'neat-org)
-(require 'neat-shells)
-(require 'neat-ui)
-;; (require 'neat-ui-extras)               ; TODO include transperency
-;; (require 'neat-startup)                 ; TODO include a nice startup screen
+
+(cond ((eq system-type 'darwin)
+       (neatmacs-require 'neat-macos)))
+
+;;; ============================== Modules ==============================
+
+;;; Base
+(neatmacs-require 'neat-defaults)                ; Recommended to enable
+(neatmacs-require 'neat-completion)              ; A full-fledged completion configuration
+(neatmacs-require 'neat-file-management)         ; Improvements to dired and treemacs
+(neatmacs-require 'neat-org)                     ; Default Org configuration
+(neatmacs-require 'neat-org-extras)              ; Aesthetically pleasing Org configuration
+(neatmacs-require 'neat-shells)                  ; Terminal configurations
+(neatmacs-require 'neat-ui)                      ; UI improvements
+(neatmacs-require 'neat-ui-extras)               ; UI extra goodies
+(neatmacs-require 'neat-authentication)          ; Store encrypted passwords
+(neatmacs-require 'neat-tab-bar-workspaces)      ; Tab bar workspaces
+(neatmacs-require 'neat-history)                 ; Additional history settings. Saves minibuffer and last visited file positions.
+
 
 ;;; Writing
-;; (require 'neat-tex)
-;; (require 'neat-tex-templates)
-(require 'neat-writing)                 ; Spell checking
+(neatmacs-require 'neat-tex)                     ; Probably unnecessary
+(neatmacs-require 'neat-writing)                 ; Spell checking
+(neatmacs-require 'neat-bibliography)            ; Bibliography
+
 
 ;;; Keybindings
-(require 'neat-evil)
+(neatmacs-require 'neat-evil)                    ; VI style keybindings
 
-;;; Programming
-(require 'neat-python)
-(require 'neat-lisp)
-;; (require 'neat-java)                    ; TODO include java
+
+;;; Development
+(neatmacs-require 'neat-development)             ; Neatmacs development base
+(neatmacs-require 'neat-python)                  ;
+;; (neatmacs-require 'neat-lisp)                    ;
+;; (neatmacs-require 'neat-docker)                  ; Depends on lsp mode
+;; (neatmacs-require 'neat-java)                    ; Java & Kotlin programming improvements
+;; (neatmacs-require 'neat-go)                      ; Go programming improvements
+;; (neatmacs-require 'neat-web)
 ;; (require 'neat-perl)                    ; TODO include perl
 ;; (require 'neat-c-sharp)                 ; TODO include c-sharp
 ;; (require 'neat-debugging)               ; TODO include dap debugging
-(require 'neat-docker)
+
+
+;;; Artificial intelligence
+(neatmacs-require 'neat-ai)
+
 
 ;;; Desktop mode
+(neatmacs-require 'neat-desktop)
 ;; (require 'neat-desktop-xorg)
 ;; (require 'neat-desktop-wayland)
 
